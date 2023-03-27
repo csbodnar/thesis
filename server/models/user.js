@@ -1,9 +1,10 @@
 "use strict";
 const { Model } = require("sequelize");
+const bcrypt = require("bcrypt");
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     static associate(models) {
-      // User.hasMany(models.Post);
+      User.hasOne(models.Flight);
     }
 
     checkPassword(password) {

@@ -3,58 +3,71 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable("Flights", {
-      icao24: {
-        type: Sequelize.STRING,
+      id: {
         allowNull: false,
+        autoIncrement: true,
         primaryKey: true,
+        type: Sequelize.INTEGER,
       },
-      callsign: {
+      itineraryId: {
+        allowNull: false,
         type: Sequelize.STRING,
       },
-      origin_country: {
+      pricingOptionId: {
+        allowNull: false,
         type: Sequelize.STRING,
       },
-      time_position: {
-        type: Sequelize.DATE,
-      },
-      last_contact: {
-        type: Sequelize.DATE,
-      },
-      longitude: {
-        type: Sequelize.FLOAT,
-      },
-      latitude: {
-        type: Sequelize.FLOAT,
-      },
-      baro_altitude: {
-        type: Sequelize.FLOAT,
-      },
-      on_ground: {
-        type: Sequelize.BOOLEAN,
-      },
-      velocity: {
-        type: Sequelize.FLOAT,
-      },
-      true_track: {
-        type: Sequelize.FLOAT,
-      },
-      vertical_rate: {
-        type: Sequelize.FLOAT,
-      },
-      sensors: {
-        type: Sequelize.JSON,
-      },
-      geo_altitude: {
-        type: Sequelize.FLOAT,
-      },
-      squawk: {
+      originIATA: {
+        allowNull: true,
         type: Sequelize.STRING,
       },
-      spi: {
-        type: Sequelize.BOOLEAN,
+      originEntityId: {
+        allowNull: true,
+        type: Sequelize.STRING,
       },
-      position_source: {
-        type: Sequelize.TINYINT,
+      destinationIATA: {
+        allowNull: true,
+        type: Sequelize.STRING,
+      },
+      destinationEntityId: {
+        allowNull: true,
+        type: Sequelize.STRING,
+      },
+      year: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
+      },
+      month: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
+      },
+      day: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
+      },
+      currency: {
+        allowNull: false,
+        type: Sequelize.STRING,
+      },
+      market: {
+        allowNull: false,
+        type: Sequelize.STRING,
+      },
+      locale: {
+        allowNull: false,
+        type: Sequelize.STRING,
+      },
+      adults: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
+      },
+      cabinClass: {
+        allowNull: true,
+        type: Sequelize.STRING,
+      },
+      childrenAges: {
+        allowNull: true,
+        type: Sequelize.STRING,
       },
       createdAt: {
         allowNull: false,

@@ -1,0 +1,17 @@
+{
+  "market": "UK",
+  "locale": "en-GB",
+  "currency": "EUR",
+  "itineraryId": "13554-2309200600--32544,-31669-2-11182-2309202035",
+  "pricingOptionId": "JNlnPK0nAPl0",
+  "originIATA": "LHR",
+  "originEntityId": null,
+  "destinationIATA": "DXB",
+  "destinationEntityId": null,
+  "year": 2023,
+  "month": 9,
+  "day": 20,
+  "cabinClass": "CABIN_CLASS_ECONOMY",
+  "adults": 2,
+  "childrenAges": "3,9"
+}

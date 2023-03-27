@@ -9,27 +9,26 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      Flight.belongsTo(models.User, { foreignKey: "userId", targetKey: "id" });
     }
   }
   Flight.init(
     {
-      icao24: { type: DataTypes.STRING, allowNull: false, primaryKey: true },
-      callsign: { type: DataTypes.STRING },
-      origin_country: { type: DataTypes.STRING },
-      time_position: { type: DataTypes.BIGINT },
-      last_contact: { type: DataTypes.BIGINT },
-      longitude: { type: DataTypes.FLOAT },
-      latitude: { type: DataTypes.FLOAT },
-      baro_altitude: { type: DataTypes.FLOAT },
-      on_ground: { type: DataTypes.BOOLEAN },
-      velocity: { type: DataTypes.FLOAT },
-      true_track: { type: DataTypes.FLOAT },
-      vertical_rate: { type: DataTypes.FLOAT },
-      sensors: { type: DataTypes.JSON },
-      geo_altitude: { type: DataTypes.FLOAT },
-      squawk: { type: DataTypes.STRING },
-      spi: { type: DataTypes.BOOLEAN },
-      position_source: { type: DataTypes.TINYINT },
+      itineraryId: DataTypes.STRING,
+      pricingOptionId: DataTypes.STRING,
+      originIATA: DataTypes.STRING,
+      originEntityId: DataTypes.STRING,
+      destinationIATA: DataTypes.STRING,
+      destinationEntityId: DataTypes.STRING,
+      year: DataTypes.INTEGER,
+      month: DataTypes.INTEGER,
+      day: DataTypes.INTEGER,
+      currency: DataTypes.STRING,
+      market: DataTypes.STRING,
+      locale: DataTypes.STRING,
+      adults: DataTypes.INTEGER,
+      cabinClass: DataTypes.STRING,
+      childrenAges: DataTypes.STRING,
     },
     {
       sequelize,
