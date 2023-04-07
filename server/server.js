@@ -29,10 +29,27 @@ app.get("/users", async function (req, res) {
   res.send(users);
 });
 app.post("/register", async function (req, res) {
-  created_user = await User.create({
+  let created_user = await User.create({
     name: "Jhon Doe",
     email: "jhon.doe@example.com",
     password: "asd123",
+  });
+  await Flight.create({
+    market: "UK",
+    locale: "en-GB",
+    currency: "EUR",
+    itineraryId: "13554-2309200600--32544,-31669-2-11182-2309202035",
+    pricingOptionId: "JNlnPK0nAPl0",
+    originIATA: "LHR",
+    originEntityId: null,
+    destinationIATA: "DXB",
+    destinationEntityId: null,
+    year: 2023,
+    month: 9,
+    day: 20,
+    cabinClass: "CABIN_CLASS_ECONOMY",
+    adults: 2,
+    childrenAges: "3,9",
   });
   // created_user = await User.create(req.body);
   res.status(201).json(created_user);
@@ -61,9 +78,10 @@ app.get("/getWatched", async function (req, res) {
     if (user === null) {
       res.status(404).json({ msg: "User not found" });
     }
-    res.status(200).json(user.Flight ? user.Flight : { msg: "no watched" });
+    let flight = await user.getFlight();
+    res.status(200).json(flight ? flight : { msg: "no watched" });
   } catch (err) {
-    res.status(401).json({ msg: "Couldn't Authenticate" });
+    res.status(401).json({ msg: "Couldn't Authenticate", error: err.message });
   }
 });
 app.post("/setWatched", async function (req, res) {
@@ -74,8 +92,9 @@ app.post("/setWatched", async function (req, res) {
     if (user === null) {
       res.status(404).json({ msg: "User not found" });
     }
-    const flight = Flight.create(req.body);
-    user.setFlight(flight);
+    const flight = await Flight.findOrCreate(req.body);
+    await user.setFlight(flight);
+    res.status(200).json({ msg: `flight is set to watched for user` });
   } catch (err) {
     res.status(401).json({ msg: "Couldn't Authenticate" });
   }
@@ -218,6 +237,17 @@ app.post("/refreshByItinerary", async function (req, res) {
   res.send(resData);
 });
 
+async function checkEveryUsersWatched() {
+  console.log("check");
+  const users = await User.findAll();
+  users.forEach(async (user) => {
+    let flight = await user.getFlight();
+    console.log(flight);
+  });
+}
+
 const server = app.listen(port ? port : 5555, () => {
   console.log(`Server listening on the port::${server.address().port}`);
+  checkEveryUsersWatched();
+  setInterval(checkEveryUsersWatched, 30 * 1000); //60 * 60 * 1000 = 1 hour
 });

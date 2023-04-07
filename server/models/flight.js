@@ -9,11 +9,18 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Flight.belongsTo(models.User, { foreignKey: "userId", targetKey: "id" });
+      Flight.belongsTo(models.User);
+    }
+
+    toJSON() {
+      let data = this.get();
+
+      return data;
     }
   }
   Flight.init(
     {
+      UserId: DataTypes.INTEGER,
       itineraryId: DataTypes.STRING,
       pricingOptionId: DataTypes.STRING,
       originIATA: DataTypes.STRING,
