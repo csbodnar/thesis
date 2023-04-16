@@ -3,12 +3,19 @@ const { Sequelize, DataTypes } = require("sequelize");
 const jwt = require("jsonwebtoken");
 const sqlite3 = require("sqlite3");
 const axios = require("axios");
+const cors = require('cors');
 const express = require("express"),
   path = require("path"),
   app = express(),
   bodyParser = require("body-parser"),
   port = process.env.PORT;
 app.use(bodyParser.json());
+app.use(cors());
+// app.options('*', (req, res) => {
+//   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+//   res.send();
+// });
+
 const { User, Flight } = require("./models");
 
 const HEADERS = {
@@ -29,45 +36,33 @@ app.get("/users", async function (req, res) {
   res.send(users);
 });
 app.post("/register", async function (req, res) {
-  let created_user = await User.create({
-    name: "Jhon Doe",
-    email: "jhon.doe@example.com",
-    password: "asd123",
-  });
-  await Flight.create({
-    market: "UK",
-    locale: "en-GB",
-    currency: "EUR",
-    itineraryId: "13554-2309200600--32544,-31669-2-11182-2309202035",
-    pricingOptionId: "JNlnPK0nAPl0",
-    originIATA: "LHR",
-    originEntityId: null,
-    destinationIATA: "DXB",
-    destinationEntityId: null,
-    year: 2023,
-    month: 9,
-    day: 20,
-    cabinClass: "CABIN_CLASS_ECONOMY",
-    adults: 2,
-    childrenAges: "3,9",
-  });
-  // created_user = await User.create(req.body);
-  res.status(201).json(created_user);
+  // let created_user = await User.create({
+  //   name: "Jhon Doe",
+  //   email: "jhon.doe@example.com",
+  //   password: "asd123",
+  // });
+  //TODO: validate unique email
+  created_user = await User.create(req.body);
+  let token = jwt.sign(
+    { id: created_user.id, email: created_user.email, name: created_user.name },
+    process.env.SECRET
+  );
+  res.status(201).json({ token: token });
 });
 app.post("/login", async function (req, res) {
   const user = await User.findOne({ where: { email: req.body.email } });
   if (user) {
     if (user.checkPassword(req.body.password)) {
-      token = jwt.sign(
+      let token = jwt.sign(
         { id: user.id, email: user.email, name: user.name },
         process.env.SECRET
       );
       res.status(200).json({ token: token });
     } else {
-      res.status(400).json({ error: "Password Incorrect" });
+      res.status(400).json({ msg: "Password Incorrect" });
     }
   } else {
-    res.status(404).json({ error: "User does not exist" });
+    res.status(404).json({ msg: "User does not exist" });
   }
 });
 app.get("/getWatched", async function (req, res) {
@@ -248,6 +243,6 @@ async function checkEveryUsersWatched() {
 
 const server = app.listen(port ? port : 5555, () => {
   console.log(`Server listening on the port::${server.address().port}`);
-  checkEveryUsersWatched();
-  setInterval(checkEveryUsersWatched, 30 * 1000); //60 * 60 * 1000 = 1 hour
+  // checkEveryUsersWatched();
+  // setInterval(checkEveryUsersWatched, 30 * 1000); //60 * 60 * 1000 = 1 hour
 });

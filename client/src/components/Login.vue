@@ -11,7 +11,7 @@
           v-model="email"
           type="email"
           required
-          placeholder="Enter email"
+          :placeholder="$t('emailAddressPlaceholder')"
         ></b-form-input>
       </b-form-group>
 
@@ -25,7 +25,7 @@
           v-model="password"
           type="password"
           required
-          placeholder="Enter password"
+          :placeholder="$t('passwordPlaceholder')"
         ></b-form-input>
       </b-form-group>
 
@@ -34,6 +34,7 @@
   </b-container>
 </template>
 <script>
+import store from "./../store";
 export default {
   name: "LoginComponent",
   data() {
@@ -44,16 +45,10 @@ export default {
   },
   methods: {
     login() {
-      //     axios.post('/api/login', {
-      //     email: this.email,
-      //     password: this.password
-      //   })
-      //   .then(response => {
-      //     // handle successful login
-      //   })
-      //   .catch(error => {
-      //     // handle login error
-      //   })
+      store.commit("login", {
+        email: this.email,
+        password: this.password,
+      });
     },
   },
 };

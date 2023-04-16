@@ -51,9 +51,12 @@
               <template #button-content>
                 <em>{{ $t("profile") }}</em>
               </template>
-              <b-dropdown-item href="#">{{
-                $t("watchedFlight")
-              }}</b-dropdown-item>
+
+              <router-link to="/marked" custom v-slot="{ navigate }">
+                <b-dropdown-item @click="navigate" @keypress.enter="navigate"
+                  >{{ $t("markedFlight") }}
+                </b-dropdown-item>
+              </router-link>
               <b-dropdown-item @click="signOut">{{
                 $t("signOut")
               }}</b-dropdown-item>
@@ -91,7 +94,6 @@ export default {
   methods: {
     ...mapMutations(["signOut"]),
     changeLocale(event) {
-      console.log(event.target.value);
       i18n.locale = event.target.value;
     },
   },
