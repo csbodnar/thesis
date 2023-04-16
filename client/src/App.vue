@@ -80,7 +80,7 @@
 
 <script>
 import { mapState, mapMutations } from "vuex";
-// import { i18n } from '@/plugins/i18n';
+import { i18n } from "./i18n";
 export default {
   name: "App",
   components: {},
@@ -92,7 +92,7 @@ export default {
     ...mapMutations(["signOut"]),
     changeLocale(event) {
       console.log(event.target.value);
-      // i18n.locale = event.target.value
+      i18n.locale = event.target.value;
     },
   },
 };
