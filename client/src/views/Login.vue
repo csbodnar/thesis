@@ -29,6 +29,7 @@
         ></b-form-input>
       </b-form-group>
 
+      <b-button @click="goBack">{{ $t("back") }}</b-button>
       <b-button type="submit">{{ $t("loginVerb") }}</b-button>
     </b-form>
   </b-container>
@@ -49,6 +50,9 @@ export default {
         email: this.email,
         password: this.password,
       });
+    },
+    goBack() {
+      store.dispatch("goBack");
     },
   },
 };

@@ -11,10 +11,6 @@ const express = require("express"),
   port = process.env.PORT;
 app.use(bodyParser.json());
 app.use(cors());
-// app.options('*', (req, res) => {
-//   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-//   res.send();
-// });
 
 const { User, Flight } = require("./models");
 

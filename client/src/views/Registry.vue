@@ -53,6 +53,7 @@
         ></b-form-input>
       </b-form-group>
 
+      <b-button @click="goBack">{{ $t("back") }}</b-button>
       <b-button type="submit">{{ $t("register") }}</b-button>
     </b-form>
   </b-container>
@@ -80,6 +81,9 @@ export default {
       } else {
         // todo error
       }
+    },
+    goBack() {
+      store.dispatch("goBack");
     },
   },
 };

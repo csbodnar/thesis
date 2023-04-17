@@ -54,6 +54,9 @@ const store = new Vuex.Store({
     },
   },
   actions: {
+    goBack() {
+      router.go(-1);
+    },
     async fetchMarkedFlightData(context) {
       await axios
         .get("http://localhost:5555/getWatched", {
