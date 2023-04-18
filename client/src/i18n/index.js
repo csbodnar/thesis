@@ -4,7 +4,7 @@ import VueI18n from "vue-i18n";
 Vue.use(VueI18n);
 
 const messages = {
-  en: {
+  "en-US": {
     loginTab: "Log in",
     registry: "Registry",
     search: "Search",
@@ -34,8 +34,41 @@ const messages = {
     premiumEconomyClass: "Premium Economy",
     buisnessClass: "Buisness",
     firstClass: "First Class",
+    back: "Back",
   },
-  fr: {
+  "en-GB": {
+    loginTab: "Log in",
+    registry: "Registry",
+    search: "Search",
+    language: "LANG",
+    profile: "Profile",
+    signOut: "Sign Out",
+    markedFlight: "Marked Flight",
+    nameLabel: "Username:",
+    namePlaceholder: "Enter username",
+    emailAddressLabel: "Email address:",
+    emailAddressPlaceholder: "Enter email",
+    passwordLabel: "Password:",
+    passwordPlaceholder: "Enter password",
+    passwordAgainLabel: "Password again:",
+    passwordAgainPlaceholder: "Enter password again",
+    loginVerb: "Login",
+    register: "Register",
+    oneway: "One way",
+    return: "Return",
+    direct: "Direct",
+    fromLabel: "From",
+    toLabel: "To",
+    dateDepartLabel: "Depart date",
+    dateReturnLabel: "Return date",
+    cabinClass: "Cabin Class",
+    economyClass: "Economy",
+    premiumEconomyClass: "Premium Economy",
+    buisnessClass: "Buisness",
+    firstClass: "First Class",
+    back: "Back",
+  },
+  "fr-FR": {
     loginTab: "Se connecter",
     registry: "Registry",
     search: "Search",
@@ -65,8 +98,9 @@ const messages = {
     premiumEconomyClass: "Premium Economy",
     buisnessClass: "Buisness",
     firstClass: "First Class",
+    back: "Back",
   },
-  hu: {
+  "hu-HU": {
     loginTab: "Bejelentkezés",
     registry: "Regisztráció",
     search: "Keresés",
@@ -96,8 +130,9 @@ const messages = {
     premiumEconomyClass: "Premium Economy",
     buisnessClass: "Buisness",
     firstClass: "Első Osztály",
+    back: "Vissza",
   },
-  de: {
+  "de-DE": {
     loginTab: "Log in",
     registry: "Registry",
     search: "Search",
@@ -127,6 +162,7 @@ const messages = {
     premiumEconomyClass: "Premium Economy",
     buisnessClass: "Buisness",
     firstClass: "First Class",
+    back: "Back",
   },
   // add more languages as needed
 };

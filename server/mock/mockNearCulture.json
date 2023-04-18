@@ -1,0 +1,21 @@
+{
+    "status": "RESULT_STATUS_COMPLETE",
+    "market": {
+        "code": "UK",
+        "name": "United Kingdom",
+        "currency": "GBP"
+    },
+    "locale": {
+        "code": "en-GB",
+        "name": "English (United Kingdom)"
+    },
+    "currency": {
+        "code": "GBP",
+        "symbol": "£",
+        "thousandsSeparator": ",",
+        "decimalSeparator": ".",
+        "symbolOnLeft": true,
+        "spaceBetweenAmountAndSymbol": false,
+        "decimalDigits": 2
+    }
+}

@@ -20,10 +20,25 @@
       <b-form-group id="from-input" :label="$t('fromLabel')" label-for="from">
         <b-form-input
           id="from"
+          list="from-list"
           v-model="from"
+          @input="autoSuggestFromPlace"
           type="text"
           required
-        ></b-form-input>
+        >
+        </b-form-input>
+        <datalist id="from-list">
+          <option
+            v-for="suggestion in this.placeSuggestions"
+            :key="suggestion.entityId"
+          >
+            {{
+              suggestion.name + suggestion.countryName
+                ? ` (${suggestion.countryName})`
+                : ""
+            }}
+          </option>
+        </datalist>
       </b-form-group>
 
       <b-form-group id="to-input" :label="$t('toLabel')" label-for="to">
@@ -87,6 +102,7 @@
 </template>
 <script>
 import store from "./../store";
+
 export default {
   name: "SearchForm",
   data() {
@@ -104,8 +120,8 @@ export default {
     isReturn() {
       return this.searchType === "return";
     },
-    t() {
-      return this.$root.$i18n;
+    placeSuggestions() {
+      return store.getters.getPlaceSuggestions;
     },
   },
   methods: {
@@ -114,6 +130,17 @@ export default {
         email: this.email,
         password: this.password,
       });
+    },
+    autoSuggestFromPlace(text) {
+      store.dispatch("autoSuggestPlace", {
+        searchTerm: text,
+        isDestination: false,
+      });
+      console.log(
+        this.placeSuggestions.map((x) => {
+          x.name;
+        })
+      );
     },
   },
 };

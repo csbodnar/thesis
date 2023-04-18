@@ -19,16 +19,19 @@
         <!-- Right aligned nav items -->
         <b-navbar-nav class="ml-auto">
           <b-nav-item-dropdown :text="$t('language')" right>
-            <b-dropdown-item-button value="en" @click="changeLocale"
-              >English</b-dropdown-item-button
+            <b-dropdown-item-button value="en-US" @click="changeLocale"
+              >English(US)</b-dropdown-item-button
             >
-            <b-dropdown-item-button value="hu" @click="changeLocale"
+            <b-dropdown-item-button value="en-GB  " @click="changeLocale"
+              >English(GB)</b-dropdown-item-button
+            >
+            <b-dropdown-item-button value="hu-HU" @click="changeLocale"
               >Magyar</b-dropdown-item-button
             >
-            <b-dropdown-item-button value="fr" @click="changeLocale"
+            <b-dropdown-item-button value="fr-FR" @click="changeLocale"
               >Français</b-dropdown-item-button
             >
-            <b-dropdown-item-button value="de" @click="changeLocale"
+            <b-dropdown-item-button value="de-DE" @click="changeLocale"
               >Deutsch</b-dropdown-item-button
             >
           </b-nav-item-dropdown>
@@ -83,9 +86,13 @@
 
 <script>
 import { mapState, mapMutations } from "vuex";
+import store from "./store";
 import { i18n } from "./i18n";
 export default {
   name: "App",
+  created() {
+    store.dispatch("fetchCulture");
+  },
   components: {},
   computed: {
     ...mapState(["isSignedIn"]),

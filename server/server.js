@@ -3,7 +3,9 @@ const { Sequelize, DataTypes } = require("sequelize");
 const jwt = require("jsonwebtoken");
 const sqlite3 = require("sqlite3");
 const axios = require("axios");
-const cors = require('cors');
+const cors = require("cors");
+const requestIp = require("request-ip");
+const https = require('https');
 const express = require("express"),
   path = require("path"),
   app = express(),
@@ -11,6 +13,7 @@ const express = require("express"),
   port = process.env.PORT;
 app.use(bodyParser.json());
 app.use(cors());
+app.use(requestIp.mw());
 
 const { User, Flight } = require("./models");
 
@@ -18,6 +21,11 @@ const HEADERS = {
   "content-type": "application/json",
   "x-api-key": "prtl6749387986743898559646983194",
 };
+const httpsAgent = new https.Agent({
+  rejectUnauthorized: false,
+});
+
+axios.defaults.httpsAgent = httpsAgent;
 
 let sessionToken = "";
 let refreshToken = "";
@@ -140,30 +148,30 @@ app.get("/fetchMarkets", async function (req, res) {
 app.post("/search", async function (req, res) {
   let resData;
   //req.body should look like this
-  let reqBody = {
-    query: {
-      market: "UK",
-      locale: "en-GB",
-      currency: "EUR",
-      queryLegs: [
-        {
-          originPlaceId: { iata: "LHR" },
-          destinationPlaceId: { iata: "DXB" },
-          date: { year: 2023, month: 9, day: 20 },
-        },
-      ],
-      cabinClass: "CABIN_CLASS_ECONOMY",
-      adults: 2,
-      childrenAges: [3, 9],
-    },
-  };
+  // let reqBody = {
+  // query: {
+  //   market: "UK",
+  //   locale: "en-GB",
+  //   currency: "EUR",
+  //   queryLegs: [
+  //     {
+  //       originPlaceId: { iata: "LHR" },
+  //       destinationPlaceId: { iata: "DXB" },
+  //       date: { year: 2023, month: 9, day: 20 },
+  //     },
+  //   ],
+  //   cabinClass: "CABIN_CLASS_ECONOMY",
+  //   adults: 2,
+  //   childrenAges: [3, 9],
+  // },
+  // };
 
   await axios
     .request({
       method: "POST",
       url: "https://partners.api.skyscanner.net/apiservices/v3/flights/live/search/create",
       headers: HEADERS,
-      data: reqBody, //req.body,
+      data: req.body,
     })
     .then(function (response) {
       resData = response.data;
@@ -182,6 +190,43 @@ app.post("/searchRefresh", async function (req, res) {
       method: "POST",
       url: `https://partners.api.skyscanner.net/apiservices/v3/flights/live/search/poll/${sessionToken}`,
       headers: HEADERS,
+    })
+    .then(function (response) {
+      resData = response.data;
+    })
+    .catch(function (error) {
+      resData = error;
+    });
+  res.send(resData);
+});
+
+app.get("/fetchCulture", async function (req, res) {
+  const clientIp = req.clientIp;
+  console.log("Client IP:", clientIp);
+  let resData;
+  await axios
+    .request({
+      method: "GET",
+      url: `https://partners.api.skyscanner.net/apiservices/v3/culture/nearestculture?ipAddress=${clientIp}`,
+      headers: HEADERS,
+    })
+    .then(function (response) {
+      resData = response.data;
+    })
+    .catch(function (error) {
+      resData = error;
+    });
+  res.send(resData);
+});
+
+app.post("/suggestPlace", async function (req, res) {
+  let resData;
+  await axios
+    .request({
+      method: "POST",
+      url: "https://partners.api.skyscanner.net/apiservices/v3/autosuggest/flights",
+      headers: HEADERS,
+      data: req.body,
     })
     .then(function (response) {
       resData = response.data;
