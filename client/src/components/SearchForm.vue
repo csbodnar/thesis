@@ -21,7 +21,7 @@
         <b-form-input
           id="from"
           list="from-list"
-          v-model="from"
+          v-model="from.search"
           @input="autoSuggestFromPlace"
           type="text"
           required
@@ -31,18 +31,27 @@
           <option
             v-for="suggestion in this.placeSuggestions"
             :key="suggestion.entityId"
-          >
-            {{
-              suggestion.name + suggestion.countryName
-                ? ` (${suggestion.countryName})`
-                : ""
-            }}
-          </option>
+            :value="suggestion.name"
+          />
         </datalist>
       </b-form-group>
 
       <b-form-group id="to-input" :label="$t('toLabel')" label-for="to">
-        <b-form-input id="to" v-model="to" type="text" required></b-form-input>
+        <b-form-input
+          id="to"
+          list="to-list"
+          v-model="to.search"
+          @input="autoSuggestToPlace"
+          type="text"
+          required
+        ></b-form-input>
+        <datalist id="to-list">
+          <option
+            v-for="suggestion in this.placeSuggestions"
+            :key="suggestion.entityId"
+            :value="suggestion.name"
+          />
+        </datalist>
       </b-form-group>
 
       <b-form-group
@@ -108,8 +117,14 @@ export default {
   data() {
     return {
       searchType: "oneway",
-      from: "",
-      to: "",
+      from: {
+        search: "",
+        object: {},
+      },
+      to: {
+        search: "",
+        object: {},
+      },
       dateDepart: "",
       dateReturn: "",
       cabinClass: "CABIN_CLASS_UNSPECIFIED",
@@ -132,15 +147,28 @@ export default {
       });
     },
     autoSuggestFromPlace(text) {
+      const selectedSuggestion = this.placeSuggestions.find(
+        (suggestion) => suggestion.name === text
+      );
+      if (selectedSuggestion) {
+        this.from.object = selectedSuggestion;
+      }
       store.dispatch("autoSuggestPlace", {
         searchTerm: text,
         isDestination: false,
       });
-      console.log(
-        this.placeSuggestions.map((x) => {
-          x.name;
-        })
+    },
+    autoSuggestToPlace(text) {
+      const selectedSuggestion = this.placeSuggestions.find(
+        (suggestion) => suggestion.name === text
       );
+      if (selectedSuggestion) {
+        this.to.object = selectedSuggestion;
+      }
+      store.dispatch("autoSuggestPlace", {
+        searchTerm: text,
+        isDestination: true,
+      });
     },
   },
 };
