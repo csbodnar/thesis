@@ -146,41 +146,17 @@ app.get("/fetchMarkets", async function (req, res) {
   res.send(resData);
 });
 app.post("/search", async function (req, res) {
+  // todo while status !== 'RESULT_STATUS_INCOMPLETE' loop try
   let resData;
-  let reqbody = {
-    query: {
-      market: "UK",
-      locale: "en-GB",
-      currency: "GBP",
-      queryLegs: [
-        {
-          originPlaceId: {
-            entityId: "95565044",
-          },
-          destinationPlaceId: {
-            entityId: "27538424",
-          },
-          date: {
-            year: 2023,
-            month: 4,
-            day: 17,
-          },
-        },
-      ],
-      cabinClass: "CABIN_CLASS_ECONOMY",
-      adults: 1,
-    },
-  };
-
   await axios
     .request({
       method: "POST",
       url: "https://partners.api.skyscanner.net/apiservices/v3/flights/live/search/create",
       headers: HEADERS,
-      data: reqbody,
+      data: req.body,
     })
     .then(function (response) {
-      console.log(response);
+      console.log(response.data.sessionToken);
       resData = response.data;
       sessionToken = response.data.sessionToken;
     })

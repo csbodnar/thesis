@@ -15,10 +15,25 @@ const store = new Vuex.Store({
     placeSuggestions: [],
     isSignedIn: false,
     authToken: "",
+    isSearching: true,
+    showingResults: false,
+    searchResultItineraries: {},
+    sortingOption: "best",
+    sortingOptions: {
+      cheapest: [],
+      fastest: [],
+      best: [],
+    },
   },
   getters: {
     getPlaceSuggestions(state) {
       return state.placeSuggestions;
+    },
+    isCurrentlySearching(state) {
+      return state.isSearching;
+    },
+    getSortedItineraries(state) {
+      return state.sortingOptions[state.sortingOption];
     },
   },
   mutations: {
@@ -28,6 +43,12 @@ const store = new Vuex.Store({
       if (router.currentRoute.path !== "/") {
         router.push("/");
       }
+    },
+    setSortingOption(state, payload) {
+      state.sortingOption = payload.sortingOption;
+    },
+    setCurrentlySearching(state, payload) {
+      state.isSearching = payload.isSearching;
     },
     login(state, payload) {
       axios
@@ -68,6 +89,7 @@ const store = new Vuex.Store({
       router.go(-1);
     },
     search(context, payload) {
+      context.commit("setCurrentlySearching", { isSearching: false });
       axios
         .post("http://localhost:5555/search", {
           query: {
@@ -82,6 +104,12 @@ const store = new Vuex.Store({
         })
         .then((response) => {
           console.log(response.data);
+          console.log(response.data.content);
+          this.state.sortingOptions = response.data.content.sortingOptins;
+          this.state.searchResultItineraries =
+            response.data.content.results.itineraries;
+          this.state.showingResults = true;
+          // return response.data;
         })
         .catch((error) => {
           console.log(error);

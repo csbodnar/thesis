@@ -154,7 +154,7 @@ export default {
               },
               date: {
                 year: dateOfDepart.getFullYear(),
-                month: dateOfDepart.getMonth(),
+                month: dateOfDepart.getMonth() + 1,
                 day: dateOfDepart.getDate(),
               },
             },
