@@ -63,38 +63,30 @@ const store = new Vuex.Store({
         });
     },
   },
-  search(state, payload) {
-    axios
-      .post("http://localhost:5555/search", {
-        query: {
-          market: "UK",
-          locale: "en-GB",
-          currency: "EUR",
-          queryLegs: [
-            {
-              originPlaceId: { iata: "LHR" },
-              destinationPlaceId: { iata: "DXB" },
-              date: { year: 2023, month: 9, day: 20 },
-            },
-          ],
-          cabinClass: payload.cabinClass,
-          adults: 2,
-          childrenAges: [3, 9],
-        },
-      })
-      .then((response) => {
-        state.authToken = response.data.token;
-        state.isSignedIn = true;
-        router.push("/");
-      })
-      .catch((error) => {
-        console.log(error);
-        return error.msg;
-      });
-  },
   actions: {
     goBack() {
       router.go(-1);
+    },
+    search(context, payload) {
+      axios
+        .post("http://localhost:5555/search", {
+          query: {
+            market: context.state.market,
+            locale: context.state.locale,
+            currency: context.state.currency.code,
+            queryLegs: payload.query.queryLegs,
+            cabinClass: payload.query.cabinClass,
+            adults: 1,
+            // childrenAges: [3, 9],
+          },
+        })
+        .then((response) => {
+          console.log(response.data);
+        })
+        .catch((error) => {
+          console.log(error);
+          return error.msg;
+        });
     },
     autoSuggestPlace(context, payload) {
       axios
@@ -121,16 +113,16 @@ const store = new Vuex.Store({
         .then((response) => {
           console.log(response);
           if (response.data.name === "Error") {
-            //deafault culture is hungarian
-            context.state.market = "HU";
-            context.state.locale = "hu-HU";
+            //deafault culture is english(uk)
+            context.state.market = "UK";
+            context.state.locale = "en-GB";
             context.state.currency = {
-              code: "HUF",
-              symbol: "Ft",
-              thousandsSeparator: ".",
-              decimalSeparator: ",",
+              code: "GBP",
+              symbol: "£",
+              thousandsSeparator: ",",
+              decimalSeparator: ".",
               symbolOnLeft: false,
-              spaceBetweenAmountAndSymbol: true,
+              spaceBetweenAmountAndSymbol: false,
               decimalDigits: 2,
             };
           } else {

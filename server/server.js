@@ -5,7 +5,7 @@ const sqlite3 = require("sqlite3");
 const axios = require("axios");
 const cors = require("cors");
 const requestIp = require("request-ip");
-const https = require('https');
+const https = require("https");
 const express = require("express"),
   path = require("path"),
   app = express(),
@@ -147,33 +147,40 @@ app.get("/fetchMarkets", async function (req, res) {
 });
 app.post("/search", async function (req, res) {
   let resData;
-  //req.body should look like this
-  // let reqBody = {
-  // query: {
-  //   market: "UK",
-  //   locale: "en-GB",
-  //   currency: "EUR",
-  //   queryLegs: [
-  //     {
-  //       originPlaceId: { iata: "LHR" },
-  //       destinationPlaceId: { iata: "DXB" },
-  //       date: { year: 2023, month: 9, day: 20 },
-  //     },
-  //   ],
-  //   cabinClass: "CABIN_CLASS_ECONOMY",
-  //   adults: 2,
-  //   childrenAges: [3, 9],
-  // },
-  // };
+  let reqbody = {
+    query: {
+      market: "UK",
+      locale: "en-GB",
+      currency: "GBP",
+      queryLegs: [
+        {
+          originPlaceId: {
+            entityId: "95565044",
+          },
+          destinationPlaceId: {
+            entityId: "27538424",
+          },
+          date: {
+            year: 2023,
+            month: 4,
+            day: 17,
+          },
+        },
+      ],
+      cabinClass: "CABIN_CLASS_ECONOMY",
+      adults: 1,
+    },
+  };
 
   await axios
     .request({
       method: "POST",
       url: "https://partners.api.skyscanner.net/apiservices/v3/flights/live/search/create",
       headers: HEADERS,
-      data: req.body,
+      data: reqbody,
     })
     .then(function (response) {
+      console.log(response);
       resData = response.data;
       sessionToken = response.data.sessionToken;
     })

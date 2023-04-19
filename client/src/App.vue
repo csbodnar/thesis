@@ -18,7 +18,7 @@
 
         <!-- Right aligned nav items -->
         <b-navbar-nav class="ml-auto">
-          <b-nav-item-dropdown :text="$t('language')" right>
+          <b-nav-item-dropdown text="LANG" right>
             <b-dropdown-item-button value="en-US" @click="changeLocale"
               >English(US)</b-dropdown-item-button
             >

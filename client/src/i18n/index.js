@@ -8,7 +8,6 @@ const messages = {
     loginTab: "Log in",
     registry: "Registry",
     search: "Search",
-    language: "LANG",
     profile: "Profile",
     signOut: "Sign Out",
     markedFlight: "Marked Flight",
@@ -40,7 +39,6 @@ const messages = {
     loginTab: "Log in",
     registry: "Registry",
     search: "Search",
-    language: "LANG",
     profile: "Profile",
     signOut: "Sign Out",
     markedFlight: "Marked Flight",
@@ -72,7 +70,6 @@ const messages = {
     loginTab: "Se connecter",
     registry: "Registry",
     search: "Search",
-    language: "LANG",
     profile: "Profile",
     signOut: "Sign Out",
     markedFlight: "Marked Flight",
@@ -104,7 +101,6 @@ const messages = {
     loginTab: "Bejelentkezés",
     registry: "Regisztráció",
     search: "Keresés",
-    language: "NYELV",
     profile: "Profil",
     signOut: "Kijelentkezés",
     markedFlight: "Figyelt járat",
@@ -136,7 +132,6 @@ const messages = {
     loginTab: "Log in",
     registry: "Registry",
     search: "Search",
-    language: "LANG",
     profile: "Profile",
     signOut: "Sign Out",
     markedFlight: "Marked Flight",
@@ -168,7 +163,7 @@ const messages = {
 };
 
 export const i18n = new VueI18n({
-  locale: "en", // set the default locale
-  fallbackLocale: "en", // set the fallback locale
+  locale: "en-GB", // set the default locale
+  fallbackLocale: "en-GB", // set the fallback locale
   messages, // set the messages object
 });

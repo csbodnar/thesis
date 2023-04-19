@@ -141,9 +141,26 @@ export default {
   },
   methods: {
     search() {
-      store.commit("search", {
-        email: this.email,
-        password: this.password,
+      let dateOfDepart = new Date(this.dateDepart);
+      store.dispatch("search", {
+        query: {
+          queryLegs: [
+            {
+              originPlaceId: {
+                entityId: this.from.object.entityId,
+              },
+              destinationPlaceId: {
+                entityId: this.to.object.entityId,
+              },
+              date: {
+                year: dateOfDepart.getFullYear(),
+                month: dateOfDepart.getMonth(),
+                day: dateOfDepart.getDate(),
+              },
+            },
+          ],
+          cabinClass: this.cabinClass,
+        },
       });
     },
     autoSuggestFromPlace(text) {
