@@ -23,6 +23,7 @@
           list="from-list"
           v-model="from.search"
           @input="autoSuggestFromPlace"
+          autocomplete="off"
           type="text"
           required
         >
@@ -42,6 +43,7 @@
           list="to-list"
           v-model="to.search"
           @input="autoSuggestToPlace"
+          autocomplete="off"
           type="text"
           required
         ></b-form-input>

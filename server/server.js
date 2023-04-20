@@ -147,23 +147,39 @@ app.get("/fetchMarkets", async function (req, res) {
 });
 app.post("/search", async function (req, res) {
   // todo while status !== 'RESULT_STATUS_INCOMPLETE' loop try
-  let resData;
-  await axios
-    .request({
-      method: "POST",
-      url: "https://partners.api.skyscanner.net/apiservices/v3/flights/live/search/create",
-      headers: HEADERS,
-      data: req.body,
-    })
-    .then(function (response) {
-      console.log(response.data.sessionToken);
-      resData = response.data;
-      sessionToken = response.data.sessionToken;
-    })
-    .catch(function (error) {
-      resData = error;
-    });
-  res.send(resData);
+  let resp;
+  let returnCondition = false;
+  console.log(req.body.query.queryLegs);
+  do {
+    await axios
+      .request({
+        method: "POST",
+        url: "https://partners.api.skyscanner.net/apiservices/v3/flights/live/search/create",
+        headers: HEADERS,
+        data: req.body,
+      })
+      .then(function (response) {
+        console.log(response.status, response.data.action);
+        if (
+          (response.status == 200 &&
+            response.data.status !== "RESULT_STATUS_FAILED") ||
+          response.data.action == "RESULT_ACTION_OMITTED"
+        ) {
+          sessionToken = response.data.sessionToken;
+          resp = response.data;
+          returnCondition = true;
+        }
+      })
+      .catch(function (error) {
+        console.log(error.response ? error.response.status : error.data);
+        if (error.response && error.response.status == 400) {
+          console.log(error.response.data.message);
+          resp = error;
+          returnCondition = true;
+        }
+      });
+  } while (!returnCondition);
+  res.send(resp);
 });
 
 app.post("/searchRefresh", async function (req, res) {

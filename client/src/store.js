@@ -10,14 +10,36 @@ const store = new Vuex.Store({
   // state, mutations, actions, getters, etc.
   state: {
     market: "",
-    locale: "",
-    currency: {},
+    locale: "en-GB",
+    currency: {
+      code: "GBP",
+      decimalDigits: 2,
+      decimalSeparator: ".",
+      spaceBetweenAmountAndSymbol: false,
+      symbol: "£",
+      symbolOnLeft: true,
+      thousandsSeparator: ",",
+    },
+    priceMultiplier: {
+      PRICE_UNIT_UNSPECIFIED: 1,
+      PRICE_UNIT_WHOLE: 1,
+      PRICE_UNIT_CENTI: 100,
+      PRICE_UNIT_MILLI: 1000,
+      PRICE_UNIT_MICRO: 1000000,
+    },
     placeSuggestions: [],
     isSignedIn: false,
     authToken: "",
     isSearching: true,
     showingResults: false,
+    loadingResults: false,
+    searchSessionToken: "",
     searchResultItineraries: {},
+    searchResultPlaces: {},
+    searchResultLegs: {},
+    searchResultSegments: {},
+    searchResultAgents: {},
+    searchResultCarriers: {},
     sortingOption: "best",
     sortingOptions: {
       cheapest: [],
@@ -85,12 +107,31 @@ const store = new Vuex.Store({
     },
   },
   actions: {
+    getPriceWithFormat(context, payload) {
+      const unitMultiplier = context.state.priceMultiplier[payload.price.unit];
+      const amount = parseInt(payload.price.amount) / unitMultiplier;
+      const formatter = new Intl.NumberFormat("en-GB", {
+        style: "currency",
+        currency: context.state.currency.code,
+        currencyDisplay: "symbol",
+        minimumFractionDigits: context.state.currency.decimalDigits,
+        maximumFractionDigits: context.state.currency.decimalDigits,
+        useGrouping: true,
+        grouping: context.state.currency.thousandsSeparator,
+        decimalSeparator: context.state.currency.decimalSeparator,
+      });
+
+      let asd = formatter.format(amount);
+      console.log(asd);
+      return asd;
+    },
     goBack() {
       router.go(-1);
     },
-    search(context, payload) {
-      context.commit("setCurrentlySearching", { isSearching: false });
-      axios
+    async search(context, payload) {
+      context.state.isCurrentlySearching = false;
+      context.state.loadingResults = true;
+      await axios
         .post("http://localhost:5555/search", {
           query: {
             market: context.state.market,
@@ -103,13 +144,33 @@ const store = new Vuex.Store({
           },
         })
         .then((response) => {
-          console.log(response.data);
-          console.log(response.data.content);
-          this.state.sortingOptions = response.data.content.sortingOptins;
-          this.state.searchResultItineraries =
-            response.data.content.results.itineraries;
-          this.state.showingResults = true;
-          // return response.data;
+          if (response.data.action !== "RESULT_ACTION_OMITTED") {
+            console.log(response.data.content);
+            context.state.sortingOptions = response.data.content.sortingOptions;
+            context.state.searchResultItineraries =
+              response.data.content.results.itineraries;
+            context.state.searchResultSegments =
+              response.data.content.results.segments;
+            context.state.searchResultLegs = response.data.content.results.legs;
+            context.state.searchResultPlaces =
+              response.data.content.results.places;
+            context.state.searchResultCarriers =
+              response.data.content.results.carriers;
+            context.state.searchResultAgents =
+              response.data.content.results.agents;
+            context.state.showingResults = true;
+            context.state.loadingResults = false;
+
+            context.state.sortingOptions[context.state.sortingOption].forEach(
+              (idx) => {
+                console.log(
+                  context.state.searchResultItineraries[idx.itineraryId]
+                );
+              }
+            );
+          } else {
+            //todo: error date from past
+          }
         })
         .catch((error) => {
           console.log(error);

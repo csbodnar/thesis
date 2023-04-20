@@ -1,7 +1,7 @@
 <template>
   <div>
     <search-form></search-form>
-    <div v-if="showResults">
+    <div v-if="true">
       <flight-component
         :key="element.itineraryId"
         v-for="element in sorted"
@@ -25,9 +25,7 @@ export default {
       sorting: "",
     };
   },
-  created() {
-    //store.commit("setSortingOption", {sortingOption: "cheapest"});
-  },
+  created() {},
   computed: {
     itineraries() {
       return store.state.searchResultItineraries;
