@@ -177,6 +177,55 @@ const store = new Vuex.Store({
           return error.msg;
         });
     },
+    async searchItinerary(context, payload) {
+      context.state.isCurrentlySearching = false;
+      context.state.loadingResults = true;
+      await axios
+        .post("http://localhost:5555/search", {
+          query: {
+            market: context.state.market,
+            locale: context.state.locale,
+            currency: context.state.currency.code,
+            queryLegs: payload.query.queryLegs,
+            cabinClass: payload.query.cabinClass,
+            adults: 1,
+            // childrenAges: [3, 9],
+          },
+        })
+        .then((response) => {
+          if (response.data.action !== "RESULT_ACTION_OMITTED") {
+            console.log(response.data.content);
+            context.state.sortingOptions = response.data.content.sortingOptions;
+            context.state.searchResultItineraries =
+              response.data.content.results.itineraries;
+            context.state.searchResultSegments =
+              response.data.content.results.segments;
+            context.state.searchResultLegs = response.data.content.results.legs;
+            context.state.searchResultPlaces =
+              response.data.content.results.places;
+            context.state.searchResultCarriers =
+              response.data.content.results.carriers;
+            context.state.searchResultAgents =
+              response.data.content.results.agents;
+            context.state.showingResults = true;
+            context.state.loadingResults = false;
+
+            context.state.sortingOptions[context.state.sortingOption].forEach(
+              (idx) => {
+                console.log(
+                  context.state.searchResultItineraries[idx.itineraryId]
+                );
+              }
+            );
+          } else {
+            //todo: error date from past
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+          return error.msg;
+        });
+    },
     autoSuggestPlace(context, payload) {
       axios
         .post("http://localhost:5555/suggestPlace", {
@@ -189,6 +238,7 @@ const store = new Vuex.Store({
           limit: 10,
         })
         .then((response) => {
+          console.log(response.data.places);
           context.state.placeSuggestions = response.data.places;
         })
         .catch((error) => {

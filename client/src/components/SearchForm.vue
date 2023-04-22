@@ -32,8 +32,9 @@
           <option
             v-for="suggestion in this.placeSuggestions"
             :key="suggestion.entityId"
-            :value="suggestion.name"
-          />
+          >
+            <span>{{ suggestionStringify(suggestion) }}</span>
+          </option>
         </datalist>
       </b-form-group>
 
@@ -51,8 +52,9 @@
           <option
             v-for="suggestion in this.placeSuggestions"
             :key="suggestion.entityId"
-            :value="suggestion.name"
-          />
+          >
+            <span>{{ suggestionStringify(suggestion) }}</span>
+          </option>
         </datalist>
       </b-form-group>
 
@@ -113,7 +115,12 @@
 </template>
 <script>
 import store from "./../store";
-
+import {
+  mdiAirport,
+  mdiFlagVariant,
+  mdiCityVariant,
+  mdiAirplane,
+} from "@mdi/js";
 export default {
   name: "SearchForm",
   data() {
@@ -140,8 +147,36 @@ export default {
     placeSuggestions() {
       return store.getters.getPlaceSuggestions;
     },
+    checkIcon() {
+      return mdiAirport;
+    },
   },
   methods: {
+    suggestionStringify(suggestion) {
+      switch (suggestion.type) {
+        case "PLACE_TYPE_AIRPORT":
+          return `${suggestion.name} (${suggestion.iataCode})`;
+        case "PLACE_TYPE_CITY":
+          return `${suggestion.name} (${suggestion.countryName})`;
+        case "PLACE_TYPE_COUNTRY":
+          return suggestion.name;
+        default:
+          return suggestion.name;
+      }
+    },
+    suggestionIcon(suggestion) {
+      switch (suggestion.type) {
+        case "PLACE_TYPE_AIRPORT":
+          return mdiAirport;
+        case "PLACE_TYPE_CITY":
+          return mdiCityVariant;
+        case "PLACE_TYPE_COUNTRY":
+          return mdiFlagVariant;
+        default:
+          return mdiAirplane;
+      }
+    },
+
     search() {
       let dateOfDepart = new Date(this.dateDepart);
       store.dispatch("search", {
@@ -167,7 +202,7 @@ export default {
     },
     autoSuggestFromPlace(text) {
       const selectedSuggestion = this.placeSuggestions.find(
-        (suggestion) => suggestion.name === text
+        (suggestion) => this.suggestionStringify(suggestion) === text
       );
       if (selectedSuggestion) {
         this.from.object = selectedSuggestion;
@@ -179,7 +214,7 @@ export default {
     },
     autoSuggestToPlace(text) {
       const selectedSuggestion = this.placeSuggestions.find(
-        (suggestion) => suggestion.name === text
+        (suggestion) => this.suggestionStringify(suggestion) === text
       );
       if (selectedSuggestion) {
         this.to.object = selectedSuggestion;
