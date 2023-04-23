@@ -183,20 +183,23 @@ app.post("/search", async function (req, res) {
 });
 
 app.post("/searchRefresh", async function (req, res) {
-  let resData;
+  let resp;
   await axios
     .request({
       method: "POST",
-      url: `https://partners.api.skyscanner.net/apiservices/v3/flights/live/search/poll/${sessionToken}`,
+      url: `https://partners.api.skyscanner.net/apiservices/v3/flights/live/search/poll/${req.body.sessionToken}`,
       headers: HEADERS,
     })
     .then(function (response) {
-      resData = response.data;
+      console.log(response.status, response.data.action);
+      resp = response.data;
     })
     .catch(function (error) {
-      resData = error;
+      console.log(error.response ? error.response.status : error.data);
+
+      resp = error;
     });
-  res.send(resData);
+  res.send(resp);
 });
 
 app.get("/fetchCulture", async function (req, res) {
@@ -241,9 +244,11 @@ app.post("/searchByItinerary", async function (req, res) {
   await axios
     .request({
       method: "POST",
-      url: `https://partners.api.skyscanner.net/apiservices/v3/flights/live/itineraryrefresh/create/${sessionToken}`,
+      url: `https://partners.api.skyscanner.net/apiservices/v3/flights/live/itineraryrefresh/create/${req.body.sessionToken}`,
       headers: HEADERS,
-      data: req.body,
+      data: {
+        itineraryId: req.body.itineraryId,
+      },
     })
     .then(function (response) {
       resData = response.data;

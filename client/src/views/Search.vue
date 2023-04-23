@@ -1,13 +1,22 @@
 <template>
   <div>
     <search-form></search-form>
-    <div v-if="true">
-      <flight-component
-        :key="element.itineraryId"
-        v-for="element in sorted"
-        :itinerary="itineraries[element.itineraryId]"
-      ></flight-component>
-    </div>
+    <b-container fluid="md">
+      <div v-if="true">
+        <flight-component
+          :key="element.itineraryId"
+          v-for="element in currentPageItems"
+          :itinerary="itineraries[element.itineraryId]"
+          :id="element.itineraryId"
+        ></flight-component>
+      </div>
+      <b-pagination
+        :align="'center'"
+        v-model="currentPage"
+        :total-rows="totalItems"
+        :per-page="perPage"
+      ></b-pagination>
+    </b-container>
   </div>
 </template>
 <script>
@@ -23,6 +32,8 @@ export default {
   data() {
     return {
       sorting: "",
+      currentPage: 1,
+      perPage: 6,
     };
   },
   created() {},
@@ -35,6 +46,17 @@ export default {
     },
     sorted() {
       return store.getters.getSortedItineraries;
+    },
+    totalItems() {
+      return Object.keys(this.itineraries).length;
+    },
+    totalPages() {
+      return Math.ceil(this.totalItems / this.perPage);
+    },
+    currentPageItems() {
+      const startIndex = (this.currentPage - 1) * this.perPage;
+      const endIndex = startIndex + this.perPage;
+      return this.sorted.slice(startIndex, endIndex);
     },
   },
 };

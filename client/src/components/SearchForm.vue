@@ -3,40 +3,50 @@
     <b-form @submit.prevent="search">
       <div>
         <b-form-group v-slot="{ ariaDescribedby }">
-          <b-form-radio
-            v-model="searchType"
-            :aria-describedby="ariaDescribedby"
-            value="oneway"
-            >{{ $t("oneway") }}
-          </b-form-radio>
-          <b-form-radio
-            v-model="searchType"
-            :aria-describedby="ariaDescribedby"
-            value="return"
-            >{{ $t("return") }}
-          </b-form-radio>
+          <div class="d-flex justify-content-left">
+            <b-form-radio
+              v-model="searchType"
+              :aria-describedby="ariaDescribedby"
+              value="oneway"
+              >{{ $t("oneway") }}
+            </b-form-radio>
+            <b-form-radio
+              v-model="searchType"
+              :aria-describedby="ariaDescribedby"
+              value="return"
+              >{{ $t("return") }}
+            </b-form-radio>
+          </div>
         </b-form-group>
       </div>
-      <b-form-group id="from-input" :label="$t('fromLabel')" label-for="from">
-        <b-form-input
-          id="from"
-          list="from-list"
-          v-model="from.search"
-          @input="autoSuggestFromPlace"
-          autocomplete="off"
-          type="text"
-          required
+      <div>
+        <b-form-group
+          id="from-input"
+          :label="$t('fromLabel')"
+          label-cols="4"
+          label-cols-lg="2"
+          label-for="from"
         >
-        </b-form-input>
-        <datalist id="from-list">
-          <option
-            v-for="suggestion in this.placeSuggestions"
-            :key="suggestion.entityId"
+          <b-form-input
+            id="from"
+            list="from-list"
+            v-model="from.search"
+            @input="autoSuggestFromPlace"
+            autocomplete="off"
+            type="text"
+            required
           >
-            <span>{{ suggestionStringify(suggestion) }}</span>
-          </option>
-        </datalist>
-      </b-form-group>
+          </b-form-input>
+          <datalist id="from-list">
+            <option
+              v-for="suggestion in this.placeSuggestions"
+              :key="suggestion.entityId"
+            >
+              <span>{{ suggestionStringify(suggestion) }}</span>
+            </option>
+          </datalist>
+        </b-form-group>
+      </div>
 
       <b-form-group id="to-input" :label="$t('toLabel')" label-for="to">
         <b-form-input
@@ -111,6 +121,33 @@
 
       <b-button type="submit">{{ $t("search") }}</b-button>
     </b-form>
+    <div v-if="isUsingSearhForm">
+      <b-dropdown
+        id="dropdown-buttons"
+        v-model="sortingOption"
+        text="Sorting By"
+        class="m-2"
+      >
+        <b-dropdown-item-button
+          @click="setSortingOption"
+          :active="sortingOption == 'best'"
+          value="best"
+          >Best</b-dropdown-item-button
+        >
+        <b-dropdown-item-button
+          @click="setSortingOption"
+          :active="sortingOption == 'cheapest'"
+          value="cheapest"
+          >Cheapest</b-dropdown-item-button
+        >
+        <b-dropdown-item-button
+          @click="setSortingOption"
+          :active="sortingOption == 'fastest'"
+          value="fastest"
+          >Fastest</b-dropdown-item-button
+        >
+      </b-dropdown>
+    </div>
   </b-container>
 </template>
 <script>
@@ -121,6 +158,8 @@ import {
   mdiCityVariant,
   mdiAirplane,
 } from "@mdi/js";
+import { mapState } from "vuex";
+
 export default {
   name: "SearchForm",
   data() {
@@ -147,11 +186,19 @@ export default {
     placeSuggestions() {
       return store.getters.getPlaceSuggestions;
     },
-    checkIcon() {
-      return mdiAirport;
+    isUsingSearhForm() {
+      return store.state.isSearching;
     },
+    ...mapState(["sortingOption"]),
   },
   methods: {
+    toggleSearching() {
+      store.state.isSearching = !store.state.isSearching;
+    },
+    setSortingOption(event) {
+      console.log(event.target.value);
+      store.state.sortingOption = event.target.value;
+    },
     suggestionStringify(suggestion) {
       switch (suggestion.type) {
         case "PLACE_TYPE_AIRPORT":
@@ -177,28 +224,35 @@ export default {
       }
     },
 
-    search() {
+    async search() {
       let dateOfDepart = new Date(this.dateDepart);
-      store.dispatch("search", {
-        query: {
-          queryLegs: [
-            {
-              originPlaceId: {
-                entityId: this.from.object.entityId,
+      await store
+        .dispatch("search", {
+          query: {
+            queryLegs: [
+              {
+                originPlaceId: {
+                  entityId: this.from.object.entityId,
+                },
+                destinationPlaceId: {
+                  entityId: this.to.object.entityId,
+                },
+                date: {
+                  year: dateOfDepart.getFullYear(),
+                  month: dateOfDepart.getMonth() + 1,
+                  day: dateOfDepart.getDate(),
+                },
               },
-              destinationPlaceId: {
-                entityId: this.to.object.entityId,
-              },
-              date: {
-                year: dateOfDepart.getFullYear(),
-                month: dateOfDepart.getMonth() + 1,
-                day: dateOfDepart.getDate(),
-              },
-            },
-          ],
-          cabinClass: this.cabinClass,
-        },
-      });
+            ],
+            cabinClass: this.cabinClass,
+          },
+        })
+        .then(() => {
+          store.dispatch("searchPoll");
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     },
     autoSuggestFromPlace(text) {
       const selectedSuggestion = this.placeSuggestions.find(

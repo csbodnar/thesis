@@ -88,6 +88,23 @@ const store = new Vuex.Store({
           return error.msg;
         });
     },
+    itineraryRefresh(state, payload) {
+      console.log(payload);
+      axios
+        .post("http://localhost:5555/searchByItinerary", {
+          sessionToken: state.searchSessionToken,
+          itineraryId: payload.itineraryId,
+        })
+        .then((response) => {
+          state.authToken = response.data.token;
+          state.isSignedIn = true;
+          router.push("/");
+        })
+        .catch((error) => {
+          console.log(error);
+          return error.msg;
+        });
+    },
     register(state, payload) {
       axios
         .post("http://localhost:5555/register", {
@@ -145,7 +162,7 @@ const store = new Vuex.Store({
         })
         .then((response) => {
           if (response.data.action !== "RESULT_ACTION_OMITTED") {
-            console.log(response.data.content);
+            context.state.searchSessionToken = response.data.sessionToken;
             context.state.sortingOptions = response.data.content.sortingOptions;
             context.state.searchResultItineraries =
               response.data.content.results.itineraries;
@@ -161,13 +178,14 @@ const store = new Vuex.Store({
             context.state.showingResults = true;
             context.state.loadingResults = false;
 
-            context.state.sortingOptions[context.state.sortingOption].forEach(
-              (idx) => {
-                console.log(
-                  context.state.searchResultItineraries[idx.itineraryId]
-                );
-              }
-            );
+            // context.state.sortingOptions[context.state.sortingOption].forEach(
+            //   (idx) => {
+            //     console.log(
+            //       context.state.searchResultItineraries[idx.itineraryId]
+            //     );
+            //   }
+            // );
+            return true;
           } else {
             //todo: error date from past
           }
@@ -177,54 +195,42 @@ const store = new Vuex.Store({
           return error.msg;
         });
     },
-    async searchItinerary(context, payload) {
+    async searchPoll(context) {
       context.state.isCurrentlySearching = false;
       context.state.loadingResults = true;
-      await axios
-        .post("http://localhost:5555/search", {
-          query: {
-            market: context.state.market,
-            locale: context.state.locale,
-            currency: context.state.currency.code,
-            queryLegs: payload.query.queryLegs,
-            cabinClass: payload.query.cabinClass,
-            adults: 1,
-            // childrenAges: [3, 9],
-          },
-        })
-        .then((response) => {
-          if (response.data.action !== "RESULT_ACTION_OMITTED") {
-            console.log(response.data.content);
-            context.state.sortingOptions = response.data.content.sortingOptions;
-            context.state.searchResultItineraries =
-              response.data.content.results.itineraries;
-            context.state.searchResultSegments =
-              response.data.content.results.segments;
-            context.state.searchResultLegs = response.data.content.results.legs;
-            context.state.searchResultPlaces =
-              response.data.content.results.places;
-            context.state.searchResultCarriers =
-              response.data.content.results.carriers;
-            context.state.searchResultAgents =
-              response.data.content.results.agents;
-            context.state.showingResults = true;
-            context.state.loadingResults = false;
-
-            context.state.sortingOptions[context.state.sortingOption].forEach(
-              (idx) => {
-                console.log(
-                  context.state.searchResultItineraries[idx.itineraryId]
-                );
-              }
-            );
-          } else {
-            //todo: error date from past
-          }
-        })
-        .catch((error) => {
-          console.log(error);
-          return error.msg;
-        });
+      let finishCondition = false;
+      while (!finishCondition) {
+        await axios
+          .post("http://localhost:5555/searchRefresh", {
+            sessionToken: context.state.searchSessionToken,
+          })
+          .then((response) => {
+            if (response.data.status != 429)
+              // console.log(response.data.status, response.data.action);
+              console.log(response.data);
+            if (response.data.status === "RESULT_STATUS_COMPLETE") {
+              finishCondition = true;
+              console.log(response.data);
+              context.state.sortingOptions =
+                response.data.content.sortingOptions;
+              context.state.searchResultItineraries =
+                response.data.content.results.itineraries;
+              context.state.searchResultSegments =
+                response.data.content.results.segments;
+              context.state.searchResultLegs =
+                response.data.content.results.legs;
+              context.state.searchResultPlaces =
+                response.data.content.results.places;
+              context.state.searchResultCarriers =
+                response.data.content.results.carriers;
+              context.state.searchResultAgents =
+                response.data.content.results.agents;
+            }
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      }
     },
     autoSuggestPlace(context, payload) {
       axios
@@ -238,7 +244,6 @@ const store = new Vuex.Store({
           limit: 10,
         })
         .then((response) => {
-          console.log(response.data.places);
           context.state.placeSuggestions = response.data.places;
         })
         .catch((error) => {

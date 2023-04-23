@@ -1,51 +1,76 @@
 <template>
-  <div class="flight-card">
-    <b-card-group deck v-if="isWideScreen">
-      <b-card :title="this.fromObject.fromPlace.name" class="flight-card__card">
-        <formatted-date
-          :dateObj="this.fromObject.departureDateTime"
-        ></formatted-date>
-      </b-card>
-      <b-card :title="this.toObject.toPlace.name" class="flight-card__card">
-        <formatted-date
-          :dateObj="this.toObject.arrivalDateTime"
-        ></formatted-date>
-      </b-card>
-    </b-card-group>
+  <b-card>
+    <div class="flight-card">
+      <b-card-group deck v-if="isWideScreen">
+        <b-card
+          :title="this.fromObject.fromPlace.name"
+          class="flight-card__card"
+        >
+          <formatted-date
+            :dateObj="this.fromObject.departureDateTime"
+          ></formatted-date>
+        </b-card>
+        <b-card :title="this.toObject.toPlace.name" class="flight-card__card">
+          <formatted-date
+            :dateObj="this.toObject.arrivalDateTime"
+          ></formatted-date>
+        </b-card>
+      </b-card-group>
 
-    <div v-else>
-      <b-card :title="this.fromObject.fromPlace.name" class="flight-card__card">
-        <formatted-date
-          :dateObj="this.fromObject.departureDateTime"
-        ></formatted-date>
-      </b-card>
-      <div class="flight-card__divider"></div>
-      <b-card :title="this.toObject.toPlace.name" class="flight-card__card">
-        <formatted-date
-          :dateObj="this.toObject.arrivalDateTime"
-        ></formatted-date>
-      </b-card>
-    </div>
+      <div class="d-flex justify-content-center" v-else>
+        <b-card
+          :title="this.fromObject.fromPlace.name"
+          class="flight-card__card"
+        >
+          <formatted-date
+            :dateObj="this.fromObject.departureDateTime"
+          ></formatted-date>
+        </b-card>
+        <div class="flight-card__divider"></div>
+        <b-card :title="this.toObject.toPlace.name" class="flight-card__card">
+          <formatted-date
+            :dateObj="this.toObject.arrivalDateTime"
+          ></formatted-date>
+        </b-card>
+      </div>
 
-    <div class="flight-card__time-total">
-      <div class="flight-card__time-total__label">Total Time:</div>
-      <div class="flight-card__time-total__time">{{ this.travelTime }}</div>
+      <div class="flight-card__stop-count">
+        <a v-b-toggle :href="`#stops-info_${this.id}`" @click.prevent
+          >Stops: {{ this.stopCount }}</a
+        >
+        <b-collapse :id="`stops-info_${this.id}`">
+          <b-card title="Details">
+            <flight-details
+              v-for="segment in Object.entries(segments)"
+              :key="segment[0]"
+              :segment="segment[1]"
+            ></flight-details>
+          </b-card>
+        </b-collapse>
+      </div>
+      <div class="flight-card__time-total">
+        <div class="flight-card__time-total__label">Total Time:</div>
+        <div class="flight-card__time-total__time">{{ this.travelTime }}</div>
+      </div>
       <b-button variant="primary" target="_blank" :href="this.link">{{
         this.price
       }}</b-button>
     </div>
-  </div>
+  </b-card>
 </template>
 <script>
 import store from "./../store";
 import FormattedDate from "./FormattedDate.vue";
+import FlightDetails from "./FlightDetails.vue";
 export default {
   name: "FlightComponent",
   props: {
     itinerary: Object,
+    id: String,
   },
   components: {
     FormattedDate,
+    FlightDetails,
   },
   data() {
     return {
@@ -53,6 +78,7 @@ export default {
       fromObject: {},
       toObject: {},
       travelTime: "",
+      stopCount: 0,
       link: "",
     };
   },
@@ -109,24 +135,15 @@ export default {
         lastSegment.arrivalDateTime.minute
       ),
     };
-    // const diff =
-    //   (this.toObject.arrivalDateTime - this.fromObject.departureDateTime) /
-    //   (1000 * 60); // time difference in minutes
-    // const hours = Math.floor(diff / 60);
-    // const minutes = Math.round(diff % 60);
-    // this.travelTime = `${hours}h ${minutes}m`;
 
     let sumMinutes = 0;
     this.itinerary.legIds.forEach((legId) => {
       sumMinutes += store.state.searchResultLegs[legId].durationInMinutes;
+      this.stopCount +=
+        store.state.searchResultLegs[legId].segmentIds.length - 1;
     });
-
-    const date = new Date(0, 0, 0, 0, sumMinutes);
-    this.travelTime = date.toLocaleTimeString([], {
-      hour12: false,
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    let hours = Math.floor(sumMinutes / 60);
+    this.travelTime = `${hours}h ${sumMinutes - hours * 60}m`;
   },
   computed: {
     currency() {
@@ -134,6 +151,15 @@ export default {
     },
     isWideScreen() {
       return window.innerWidth >= 992;
+    },
+    segments() {
+      let segments = [];
+      this.itinerary.legIds.forEach((legId) => {
+        store.state.searchResultLegs[legId].segmentIds.forEach((segmentId) => {
+          segments.push(store.state.searchResultSegments[segmentId]);
+        });
+      });
+      return segments;
     },
   },
 };
@@ -166,10 +192,15 @@ export default {
 }
 
 .flight-card__time-total {
-  margin-top: 20px;
   font-size: 24px;
   font-weight: bold;
   display: flex;
+  align-items: center;
+}
+.flight-card__stop-count {
+  font-size: 24px;
+  font-weight: bold;
+  display: block;
   align-items: center;
 }
 
