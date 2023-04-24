@@ -30,6 +30,7 @@ const store = new Vuex.Store({
     placeSuggestions: [],
     isSignedIn: false,
     authToken: "",
+    directFlightSearch: false,
     isSearching: true,
     showingResults: false,
     loadingResults: false,
@@ -46,6 +47,7 @@ const store = new Vuex.Store({
       fastest: [],
       best: [],
     },
+    markedFlightData: null,
   },
   getters: {
     getPlaceSuggestions(state) {
@@ -55,7 +57,18 @@ const store = new Vuex.Store({
       return state.isSearching;
     },
     getSortedItineraries(state) {
-      return state.sortingOptions[state.sortingOption];
+      if (state.directFlightSearch) {
+        return state.sortingOptions[state.sortingOption].filter((element) => {
+          let stops = 0;
+          let itinerary = state.searchResultItineraries[element.itineraryId];
+          itinerary.legIds.forEach((legId) => {
+            stops += state.searchResultLegs[legId].segmentIds.length - 1;
+          });
+          return stops == 0;
+        });
+      } else {
+        return state.sortingOptions[state.sortingOption];
+      }
     },
   },
   mutations: {
@@ -68,6 +81,9 @@ const store = new Vuex.Store({
     },
     setSortingOption(state, payload) {
       state.sortingOption = payload.sortingOption;
+    },
+    toggleDirectFlightSearch(state) {
+      state.directFlightSearch != state.directFlightSearch;
     },
     setCurrentlySearching(state, payload) {
       state.isSearching = payload.isSearching;
@@ -284,6 +300,19 @@ const store = new Vuex.Store({
     },
 
     async fetchMarkedFlightData(context) {
+      await axios
+        .get("http://localhost:5555/getWatched", {
+          headers: { Authorization: `Bearer ${context.state.authToken}` },
+        })
+        .then((response) => {
+          return response;
+        })
+        .catch((error) => {
+          console.log(error);
+          return error.msg;
+        });
+    },
+    async setMarkedFlightData(context) {
       await axios
         .get("http://localhost:5555/getWatched", {
           headers: { Authorization: `Bearer ${context.state.authToken}` },

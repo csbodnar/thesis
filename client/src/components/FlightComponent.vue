@@ -1,7 +1,11 @@
 <template>
-  <b-card>
+  <b-card class="d-flex justify-content-center mt-3">
     <div class="flight-card">
-      <b-card-group deck v-if="isWideScreen">
+      <b-card-group
+        class="d-flex flex-row justify-content-center"
+        deck
+        v-if="isWideScreen"
+      >
         <b-card
           :title="this.fromObject.fromPlace.name"
           class="flight-card__card"
@@ -35,10 +39,13 @@
       </div>
 
       <div class="flight-card__stop-count">
-        <a v-b-toggle :href="`#stops-info_${this.id}`" @click.prevent
+        <a
+          v-b-toggle
+          :href="`#stops-info_${this.id.replace(',', ':')}`"
+          @click.prevent
           >Stops: {{ this.stopCount }}</a
         >
-        <b-collapse :id="`stops-info_${this.id}`">
+        <b-collapse :id="`stops-info_${this.id.replace(',', ':')}`">
           <b-card title="Details">
             <flight-details
               v-for="segment in Object.entries(segments)"
@@ -55,6 +62,10 @@
       <b-button variant="primary" target="_blank" :href="this.link">{{
         this.price
       }}</b-button>
+    </div>
+    <!-- logged in-->
+    <div v-if="true">
+      <b-button variant="warning" @click="setMarkedForUser">Mark</b-button>
     </div>
   </b-card>
 </template>
@@ -80,10 +91,11 @@ export default {
       travelTime: "",
       stopCount: 0,
       link: "",
+      number: 0,
     };
   },
   created() {
-    // let priceObj = this.itinerary.pricingOptions[0].items[0];
+    console.log(this.sorted);
     this.link = this.itinerary.pricingOptions[0].items[0].deepLink;
     let priceObj = this.itinerary.pricingOptions[0].price;
     const unitMultiplier = store.state.priceMultiplier[priceObj.unit];
@@ -160,6 +172,21 @@ export default {
         });
       });
       return segments;
+    },
+    itineraries() {
+      return store.state.searchResultItineraries;
+    },
+    sorted() {
+      return store.getters.getSortedItineraries;
+    },
+  },
+  methods: {
+    setMarkedForUser() {
+      if (store.state.markedFlightData != null) {
+        store.dispatch("setMarkedFlightData", {});
+      } else {
+        //todo: pop-up if user wants to replace marked flight
+      }
     },
   },
 };

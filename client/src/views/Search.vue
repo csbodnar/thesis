@@ -1,18 +1,16 @@
 <template>
   <div>
     <search-form></search-form>
-    <b-container fluid="md">
-      <div v-if="true">
-        <flight-component
-          :key="element.itineraryId"
-          v-for="element in currentPageItems"
-          :itinerary="itineraries[element.itineraryId]"
-          :id="element.itineraryId"
-        ></flight-component>
-      </div>
+    <b-container class="col-lg-6 col-md-12" fluid="md">
+      <flight-component
+        :key="element.itineraryId"
+        v-for="element in currentPageItems"
+        :itinerary="itineraries[element.itineraryId]"
+        :id="element.itineraryId"
+      ></flight-component>
       <b-pagination
-        v-if="itineraries.length > 6"
-        :align="'center'"
+        v-if="showPaging"
+        align="center"
         v-model="currentPage"
         :total-rows="totalItems"
         :per-page="perPage"
@@ -32,6 +30,7 @@ export default {
   },
   data() {
     return {
+      index: 0,
       sorting: "",
       currentPage: 1,
       perPage: 6,
@@ -48,6 +47,21 @@ export default {
     sorted() {
       return store.getters.getSortedItineraries;
     },
+    filtered() {
+      if (store.state.directFlightSearch) {
+        return store.getters.getSortedItineraries.filter((element) => {
+          let stops = 0;
+          let itinerary =
+            store.state.searchResultItineraries[element.itineraryId];
+          itinerary.legIds.forEach((legId) => {
+            stops += store.state.searchResultLegs[legId].segmentIds.length - 1;
+          });
+          return stops == 0;
+        });
+      } else {
+        return store.getters.getSortedItineraries;
+      }
+    },
     totalItems() {
       return Object.keys(this.itineraries).length;
     },
@@ -57,7 +71,10 @@ export default {
     currentPageItems() {
       const startIndex = (this.currentPage - 1) * this.perPage;
       const endIndex = startIndex + this.perPage;
-      return this.sorted.slice(startIndex, endIndex);
+      return this.filtered.slice(startIndex, endIndex);
+    },
+    showPaging() {
+      return this.filtered.length > 6;
     },
   },
 };

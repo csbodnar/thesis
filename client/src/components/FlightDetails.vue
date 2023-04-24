@@ -1,7 +1,13 @@
 <template>
   <div class="d-flex justify-content-center">
-    <formatted-date :dateObj="this.departureDate"></formatted-date>
-    <formatted-date :dateObj="this.arrivalDate"></formatted-date>
+    <div class="d-flex flex-column justify-content-start mx-5">
+      <p>{{ this.originPlace }}</p>
+      <formatted-date :dateObj="this.departureDate"></formatted-date>
+    </div>
+    <div class="d-flex flex-column justify-content-end mx-5">
+      <p>{{ this.destinationPlace }}</p>
+      <formatted-date :dateObj="this.arrivalDate"></formatted-date>
+    </div>
   </div>
 </template>
 <script>
@@ -20,6 +26,8 @@ export default {
     return {
       departureDate: "",
       arrivalDate: "",
+      originPlace: "",
+      destinationPlace: "",
       flightTime: "",
       flightNumber: "",
       carrierId: "",
@@ -46,6 +54,10 @@ export default {
     }m`;
     this.carrierId = this.segment.marketingCarrierId;
     this.flightNumber = this.segment.marketingFlightnumber;
+    this.originPlace =
+      store.state.searchResultPlaces[this.segment.originPlaceId].name;
+    this.destinationPlace =
+      store.state.searchResultPlaces[this.segment.destinationPlaceId].name;
   },
   computed: {},
   methods: {},

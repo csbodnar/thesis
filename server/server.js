@@ -172,6 +172,7 @@ app.post("/search", async function (req, res) {
       })
       .catch(function (error) {
         console.log(error.response ? error.response.status : error.data);
+        // console.log(error.response, error.response.status);
         if (error.response && error.response.status == 400) {
           console.log(error.response.data.message);
           resp = error;

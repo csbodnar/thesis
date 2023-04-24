@@ -113,7 +113,12 @@
       <div class="d-flex flex-wrap justify-content-center align-items-center">
         <div class="mr-auto px-2">
           <b-form-group>
-            <b-form-checkbox id="direct" v-model="isDirect" name="direct">
+            <b-form-checkbox
+              id="direct"
+              :checked="directFlightSearch"
+              @change="toggleDirectFlightSearch"
+              name="direct"
+            >
               {{ $t("direct") }}
             </b-form-checkbox>
           </b-form-group>
@@ -183,7 +188,7 @@ import {
   mdiCityVariant,
   mdiAirplane,
 } from "@mdi/js";
-import { mapState } from "vuex";
+import { mapState, mapMutations } from "vuex";
 
 export default {
   name: "SearchForm",
@@ -201,7 +206,6 @@ export default {
       dateDepart: "",
       dateReturn: "",
       cabinClass: "CABIN_CLASS_UNSPECIFIED",
-      isDirect: true,
     };
   },
   computed: {
@@ -214,9 +218,10 @@ export default {
     isUsingSearhForm() {
       return store.state.isSearching;
     },
-    ...mapState(["sortingOption"]),
+    ...mapState(["sortingOption", "directFlightSearch"]),
   },
   methods: {
+    ...mapMutations(["toggleDirectFlightSearch"]),
     toggleSearching() {
       store.state.isSearching = !store.state.isSearching;
     },
@@ -250,7 +255,13 @@ export default {
     },
 
     async search() {
-      let dateOfDepart = new Date(this.dateDepart);
+      let dateOfDepart =
+        this.dateDepart == "" ? new Date() : new Date(this.dateDepart);
+      let dateOfReturn = "";
+      if (this.isReturn) {
+        dateOfReturn =
+          this.dateReturn == "" ? new Date() : new Date(this.dateReturn);
+      }
       await store
         .dispatch("search", {
           query: {
