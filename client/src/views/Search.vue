@@ -63,7 +63,7 @@ export default {
       }
     },
     totalItems() {
-      return Object.keys(this.itineraries).length;
+      return Object.keys(this.filtered).length;
     },
     totalPages() {
       return Math.ceil(this.totalItems / this.perPage);

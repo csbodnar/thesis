@@ -83,7 +83,7 @@ const store = new Vuex.Store({
       state.sortingOption = payload.sortingOption;
     },
     toggleDirectFlightSearch(state) {
-      state.directFlightSearch != state.directFlightSearch;
+      state.directFlightSearch = !state.directFlightSearch;
     },
     setCurrentlySearching(state, payload) {
       state.isSearching = payload.isSearching;
