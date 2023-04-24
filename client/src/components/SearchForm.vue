@@ -1,10 +1,11 @@
 <template>
-  <b-container fluid="md">
+  <b-container class="bg-info rounded mt-3 col-lg-6 col-md-12" fluid="md">
     <b-form @submit.prevent="search">
       <div>
         <b-form-group v-slot="{ ariaDescribedby }">
-          <div class="d-flex justify-content-left">
+          <div class="mt-2 d-flex justify-content-left">
             <b-form-radio
+              class="mr-5"
               v-model="searchType"
               :aria-describedby="ariaDescribedby"
               value="oneway"
@@ -26,6 +27,7 @@
           label-cols="4"
           label-cols-lg="2"
           label-for="from"
+          class="d-flex flex-column flex-lg-row mt-2"
         >
           <b-form-input
             id="from"
@@ -35,6 +37,7 @@
             autocomplete="off"
             type="text"
             required
+            class="order-lg-1"
           >
           </b-form-input>
           <datalist id="from-list">
@@ -48,7 +51,14 @@
         </b-form-group>
       </div>
 
-      <b-form-group id="to-input" :label="$t('toLabel')" label-for="to">
+      <b-form-group
+        id="to-input"
+        :label="$t('toLabel')"
+        label-for="to"
+        label-cols="4"
+        label-cols-lg="2"
+        class="d-flex flex-column flex-lg-row mt-2"
+      >
         <b-form-input
           id="to"
           list="to-list"
@@ -57,6 +67,7 @@
           autocomplete="off"
           type="text"
           required
+          class="order-lg-1"
         ></b-form-input>
         <datalist id="to-list">
           <option
@@ -72,11 +83,14 @@
         id="date-depart-input"
         :label="$t('dateDepartLabel')"
         label-for="dateDepart"
+        label-cols="4"
+        label-cols-lg="2"
+        class="mb-2 d-flex flex-column flex-lg-row mt-2"
       >
         <b-form-datepicker
           id="dateDepart"
           v-model="dateDepart"
-          class="mb-2"
+          class="order-lg-1"
         ></b-form-datepicker>
       </b-form-group>
 
@@ -85,69 +99,80 @@
         id="date-return-input"
         :label="$t('dateReturnLabel')"
         label-for="dateReturn"
+        label-cols="4"
+        label-cols-lg="2"
+        class="d-flex flex-column flex-lg-row mt-2"
       >
         <b-form-datepicker
           id="dateReturn"
           v-model="dateReturn"
-          class="mb-2"
+          class="mb-2 order-lg-1"
         ></b-form-datepicker>
       </b-form-group>
 
-      <div>
-        <b-form-select v-model="cabinClass" class="mb-3">
-          <b-form-select-option value="CABIN_CLASS_UNSPECIFIED">
-            {{ $t("cabinClass") }}
-          </b-form-select-option>
-          <b-form-select-option value="CABIN_CLASS_ECONOMY">
-            {{ $t("economyClass") }}
-          </b-form-select-option>
-          <b-form-select-option value="CABIN_CLASS_PREMIUM_ECONOMY">
-            {{ $t("premiumEconomyClass") }}
-          </b-form-select-option>
-          <b-form-select-option value="CABIN_CLASS_BUSINESS">
-            {{ $t("buisnessClass") }}
-          </b-form-select-option>
-          <b-form-select-option value="CABIN_CLASS_FIRST">
-            {{ $t("firstClass") }}
-          </b-form-select-option>
-        </b-form-select>
+      <div class="d-flex flex-wrap justify-content-center align-items-center">
+        <div class="mr-auto px-2">
+          <b-form-group>
+            <b-form-checkbox id="direct" v-model="isDirect" name="direct">
+              {{ $t("direct") }}
+            </b-form-checkbox>
+          </b-form-group>
+          <b-form-select variant="secondary" rounded v-model="cabinClass">
+            <b-form-select-option value="CABIN_CLASS_UNSPECIFIED">
+              {{ $t("cabinClass") }}
+            </b-form-select-option>
+            <b-form-select-option value="CABIN_CLASS_ECONOMY">
+              {{ $t("economyClass") }}
+            </b-form-select-option>
+            <b-form-select-option value="CABIN_CLASS_PREMIUM_ECONOMY">
+              {{ $t("premiumEconomyClass") }}
+            </b-form-select-option>
+            <b-form-select-option value="CABIN_CLASS_BUSINESS">
+              {{ $t("buisnessClass") }}
+            </b-form-select-option>
+            <b-form-select-option value="CABIN_CLASS_FIRST">
+              {{ $t("firstClass") }}
+            </b-form-select-option>
+          </b-form-select>
+        </div>
+        <div v-if="isUsingSearhForm">
+          <b-dropdown
+            id="dropdown-buttons"
+            v-model="sortingOption"
+            text="Sorting By"
+            class="m-2"
+            variant="light"
+            style="width: 8rem"
+          >
+            <b-dropdown-item-button
+              @click="setSortingOption"
+              :active="sortingOption == 'best'"
+              value="best"
+              >Best</b-dropdown-item-button
+            >
+            <b-dropdown-item-button
+              @click="setSortingOption"
+              :active="sortingOption == 'cheapest'"
+              value="cheapest"
+              >Cheapest</b-dropdown-item-button
+            >
+            <b-dropdown-item-button
+              @click="setSortingOption"
+              :active="sortingOption == 'fastest'"
+              value="fastest"
+              >Fastest</b-dropdown-item-button
+            >
+          </b-dropdown>
+        </div>
+        <b-button
+          class="px-2"
+          type="submit"
+          variant="light"
+          style="width: 8rem; height: 2.5rem"
+          >{{ $t("search") }}</b-button
+        >
       </div>
-
-      <b-form-group>
-        <b-form-checkbox id="direct" v-model="isDirect" name="direct">
-          {{ $t("direct") }}
-        </b-form-checkbox>
-      </b-form-group>
-
-      <b-button type="submit">{{ $t("search") }}</b-button>
     </b-form>
-    <div v-if="isUsingSearhForm">
-      <b-dropdown
-        id="dropdown-buttons"
-        v-model="sortingOption"
-        text="Sorting By"
-        class="m-2"
-      >
-        <b-dropdown-item-button
-          @click="setSortingOption"
-          :active="sortingOption == 'best'"
-          value="best"
-          >Best</b-dropdown-item-button
-        >
-        <b-dropdown-item-button
-          @click="setSortingOption"
-          :active="sortingOption == 'cheapest'"
-          value="cheapest"
-          >Cheapest</b-dropdown-item-button
-        >
-        <b-dropdown-item-button
-          @click="setSortingOption"
-          :active="sortingOption == 'fastest'"
-          value="fastest"
-          >Fastest</b-dropdown-item-button
-        >
-      </b-dropdown>
-    </div>
   </b-container>
 </template>
 <script>

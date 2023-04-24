@@ -11,6 +11,7 @@
         ></flight-component>
       </div>
       <b-pagination
+        v-if="itineraries.length > 6"
         :align="'center'"
         v-model="currentPage"
         :total-rows="totalItems"

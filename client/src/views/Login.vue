@@ -1,10 +1,17 @@
 <template>
-  <b-container fluid="md">
+  <b-container
+    fluid="md"
+    class="border border-secondary rounded mt-3 col-lg-8 col-xl-6 col-md-12"
+  >
+    <h2 style="margin-top: 2rem">{{ $t("loginTab") }}</h2>
     <b-form @submit.prevent="login">
       <b-form-group
         id="email-input"
         :label="$t('emailAddressLabel')"
         label-for="email"
+        label-cols="4"
+        label-cols-lg="2"
+        class="d-flex flex-column flex-lg-row mt-4"
       >
         <b-form-input
           id="email"
@@ -19,6 +26,9 @@
         id="password-input"
         :label="$t('passwordLabel')"
         label-for="password"
+        label-cols="4"
+        label-cols-lg="2"
+        class="d-flex flex-column flex-lg-row mt-4"
       >
         <b-form-input
           id="password"
@@ -28,9 +38,12 @@
           :placeholder="$t('passwordPlaceholder')"
         ></b-form-input>
       </b-form-group>
-
-      <b-button @click="goBack">{{ $t("back") }}</b-button>
-      <b-button type="submit">{{ $t("loginVerb") }}</b-button>
+      <div class="my-2">
+        <b-button class="mx-4" @click="goBack">{{ $t("back") }}</b-button>
+        <b-button class="mx-4" variant="outline-success" type="submit">{{
+          $t("loginVerb")
+        }}</b-button>
+      </div>
     </b-form>
   </b-container>
 </template>
