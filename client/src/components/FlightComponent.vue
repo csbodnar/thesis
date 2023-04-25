@@ -64,7 +64,7 @@
       }}</b-button>
     </div>
     <!-- logged in-->
-    <div v-if="true">
+    <div v-if="isSignedIn">
       <b-button variant="warning" @click="setMarkedForUser">Mark</b-button>
     </div>
   </b-card>
@@ -73,6 +73,8 @@
 import store from "./../store";
 import FormattedDate from "./FormattedDate.vue";
 import FlightDetails from "./FlightDetails.vue";
+import { mapState } from "vuex";
+
 export default {
   name: "FlightComponent",
   props: {
@@ -95,7 +97,6 @@ export default {
     };
   },
   created() {
-    console.log(this.sorted);
     this.link = this.itinerary.pricingOptions[0].items[0].deepLink;
     let priceObj = this.itinerary.pricingOptions[0].price;
     const unitMultiplier = store.state.priceMultiplier[priceObj.unit];
@@ -179,13 +180,21 @@ export default {
     sorted() {
       return store.getters.getSortedItineraries;
     },
+    ...mapState(["isSignedIn"]),
   },
   methods: {
     setMarkedForUser() {
-      if (store.state.markedFlightData != null) {
-        store.dispatch("setMarkedFlightData", {});
+      if (store.state.markedFlightData == null) {
+        //==null
+        store.dispatch("setMarkedFlightData", {
+          itineraryId: this.id,
+          pricingOptionId: this.itinerary.pricingOptions[0].id,
+          originEntityId: this.toObject.toPlace.entityId,
+          destinationEntityId: this.fromObject.fromPlace.entityId,
+        });
       } else {
-        //todo: pop-up if user wants to replace marked flight
+        // todo: pop-up if user wants to replace marked flight
+        window.alert("You allready have a marked Itinerary");
       }
     },
   },

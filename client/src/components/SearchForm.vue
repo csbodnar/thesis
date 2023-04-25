@@ -34,6 +34,7 @@
             list="from-list"
             v-model="from.search"
             @input="autoSuggestFromPlace"
+            @change="setOriginPlace"
             autocomplete="off"
             type="text"
             required
@@ -64,6 +65,7 @@
           list="to-list"
           v-model="to.search"
           @input="autoSuggestToPlace"
+          @change="setDestinationPlace"
           autocomplete="off"
           type="text"
           required
@@ -89,7 +91,7 @@
       >
         <b-form-datepicker
           id="dateDepart"
-          v-model="dateDepart"
+          v-model="searchObject.dateDepart"
           class="order-lg-1"
         ></b-form-datepicker>
       </b-form-group>
@@ -105,7 +107,7 @@
       >
         <b-form-datepicker
           id="dateReturn"
-          v-model="dateReturn"
+          v-model="searchObject.dateReturn"
           class="mb-2 order-lg-1"
         ></b-form-datepicker>
       </b-form-group>
@@ -122,7 +124,12 @@
               {{ $t("direct") }}
             </b-form-checkbox>
           </b-form-group>
-          <b-form-select variant="secondary" rounded v-model="cabinClass">
+          <b-form-select
+            variant="secondary"
+            rounded
+            :value="searchObject.cabinClass"
+            @change="changeCabinClass"
+          >
             <b-form-select-option value="CABIN_CLASS_UNSPECIFIED">
               {{ $t("cabinClass") }}
             </b-form-select-option>
@@ -203,10 +210,16 @@ export default {
         search: "",
         object: {},
       },
-      dateDepart: "",
-      dateReturn: "",
       cabinClass: "CABIN_CLASS_UNSPECIFIED",
     };
+  },
+  created() {
+    this.from.search = this.suggestionStringify(
+      store.state.searchObject.originPlaceObject
+    );
+    this.to.search = this.suggestionStringify(
+      store.state.searchObject.destinationPlaceObject
+    );
   },
   computed: {
     isReturn() {
@@ -218,15 +231,32 @@ export default {
     isUsingSearhForm() {
       return store.state.isSearching;
     },
-    ...mapState(["sortingOption", "directFlightSearch"]),
+    searchObject() {
+      return store.getters.getSearchObject;
+    },
+    ...mapState(["sortingOption", "directFlightSearch", "searchObject"]),
   },
   methods: {
     ...mapMutations(["toggleDirectFlightSearch"]),
+    changeCabinClass(cabinClass) {
+      store.commit("changeCabinClass", { cabinClass });
+    },
     toggleSearching() {
       store.state.isSearching = !store.state.isSearching;
     },
+    setOriginPlace(value) {
+      let originPlace = this.placeSuggestions.find(
+        (suggestion) => this.suggestionStringify(suggestion) === value
+      );
+      store.commit("setOriginPlaceObject", { place: originPlace });
+    },
+    setDestinationPlace(value) {
+      let destinationPlace = this.placeSuggestions.find(
+        (suggestion) => this.suggestionStringify(suggestion) === value
+      );
+      store.commit("setDestinationPlaceObject", { place: destinationPlace });
+    },
     setSortingOption(event) {
-      console.log(event.target.value);
       store.state.sortingOption = event.target.value;
     },
     suggestionStringify(suggestion) {
@@ -255,13 +285,11 @@ export default {
     },
 
     async search() {
-      let dateOfDepart =
-        this.dateDepart == "" ? new Date() : new Date(this.dateDepart);
-      let dateOfReturn = "";
-      if (this.isReturn) {
-        dateOfReturn =
-          this.dateReturn == "" ? new Date() : new Date(this.dateReturn);
-      }
+      let dateOfDepart = new Date(this.searchObject.dateDepart);
+      // let dateOfReturn = "";
+      // if (this.isReturn) {
+      //   //todo: do somethin
+      // }
       await store
         .dispatch("search", {
           query: {
@@ -280,7 +308,7 @@ export default {
                 },
               },
             ],
-            cabinClass: this.cabinClass,
+            cabinClass: this.searchObject.cabinClass,
           },
         })
         .then(() => {

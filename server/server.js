@@ -87,11 +87,31 @@ app.post("/setWatched", async function (req, res) {
   try {
     let token = req.headers["authorization"].split(" ")[1];
     let decoded = jwt.verify(token, process.env.SECRET);
+    console.log(decoded);
     let user = await User.findByPk(decoded.id);
+    console.log(user.toJSON());
     if (user === null) {
       res.status(404).json({ msg: "User not found" });
     }
-    const flight = await Flight.findOrCreate(req.body);
+    const flight = await Flight.findOrCreate({
+      UserId: decoded.id,
+      itineraryId: req.body.itineraryId,
+      pricingOptionId: req.body.pricingOptionId,
+      originIATA: req.body.originIATA,
+      originEntityId: req.body.originEntityId,
+      destinationIATA: req.body.destinationIATA,
+      destinationEntityId: req.body.destinationEntityId,
+      year: req.body.year,
+      month: req.body.month,
+      day: req.body.day,
+      currency: req.body.currency,
+      market: req.body.market,
+      locale: req.body.locale,
+      adults: req.body.adults,
+      cabinClass: req.body.cabinClass,
+      childrenAges: req.body.childrenAges,
+    });
+    console.log(flight);
     await user.setFlight(flight);
     res.status(200).json({ msg: `flight is set to watched for user` });
   } catch (err) {
@@ -149,6 +169,7 @@ app.post("/search", async function (req, res) {
   // todo while status !== 'RESULT_STATUS_INCOMPLETE' loop try
   let resp;
   let returnCondition = false;
+  let status = 200;
   console.log(req.body.query.queryLegs);
   do {
     await axios
@@ -168,6 +189,7 @@ app.post("/search", async function (req, res) {
           sessionToken = response.data.sessionToken;
           resp = response.data;
           returnCondition = true;
+          status = 200;
         }
       })
       .catch(function (error) {
@@ -175,12 +197,13 @@ app.post("/search", async function (req, res) {
         // console.log(error.response, error.response.status);
         if (error.response && error.response.status == 400) {
           console.log(error.response.data.message);
-          resp = error;
+          resp = { error: error.response.data.message };
           returnCondition = true;
+          status = 400;
         }
       });
   } while (!returnCondition);
-  res.send(resp);
+  res.status(status).send(resp);
 });
 
 app.post("/searchRefresh", async function (req, res) {

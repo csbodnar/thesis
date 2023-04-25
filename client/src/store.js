@@ -47,9 +47,22 @@ const store = new Vuex.Store({
       fastest: [],
       best: [],
     },
+    searchObject: {
+      originPlaceObject: {},
+      destinationPlaceObject: {},
+      dateDepart: new Date(),
+      dateReturn: new Date(),
+      cabinClass: "CABIN_CLASS_UNSPECIFIED",
+    },
     markedFlightData: null,
   },
   getters: {
+    getSearchObject(state) {
+      return state.searchObject;
+    },
+    getDateReturn(state) {
+      return `${state.searchObject.dateReturn.getFullYear()}-${state.searchObject.dateReturn.getMonth()}-${state.searchObject.dateReturn.getDay()}`;
+    },
     getPlaceSuggestions(state) {
       return state.placeSuggestions;
     },
@@ -79,6 +92,15 @@ const store = new Vuex.Store({
         router.push("/");
       }
     },
+    changeCabinClass(state, payload) {
+      state.searchObject.cabinClass = payload.cabinClass;
+    },
+    setOriginPlaceObject(state, payload) {
+      state.searchObject.originPlaceObject = payload.place;
+    },
+    setDestinationPlaceObject(state, payload) {
+      state.searchObject.destinationPlaceObject = payload.place;
+    },
     setSortingOption(state, payload) {
       state.sortingOption = payload.sortingOption;
     },
@@ -87,22 +109,6 @@ const store = new Vuex.Store({
     },
     setCurrentlySearching(state, payload) {
       state.isSearching = payload.isSearching;
-    },
-    login(state, payload) {
-      axios
-        .post("http://localhost:5555/login", {
-          email: payload.email,
-          password: payload.password,
-        })
-        .then((response) => {
-          state.authToken = response.data.token;
-          state.isSignedIn = true;
-          router.push("/");
-        })
-        .catch((error) => {
-          console.log(error);
-          return error.msg;
-        });
     },
     itineraryRefresh(state, payload) {
       console.log(payload);
@@ -140,6 +146,23 @@ const store = new Vuex.Store({
     },
   },
   actions: {
+    login(context, payload) {
+      axios
+        .post("http://localhost:5555/login", {
+          email: payload.email,
+          password: payload.password,
+        })
+        .then((response) => {
+          context.state.authToken = response.data.token;
+          context.state.isSignedIn = true;
+          context.dispatch("fetchMarkedFlightData");
+          router.go(-1);
+        })
+        .catch((error) => {
+          console.log(error);
+          return error.msg;
+        });
+    },
     getPriceWithFormat(context, payload) {
       const unitMultiplier = context.state.priceMultiplier[payload.price.unit];
       const amount = parseInt(payload.price.amount) / unitMultiplier;
@@ -154,9 +177,7 @@ const store = new Vuex.Store({
         decimalSeparator: context.state.currency.decimalSeparator,
       });
 
-      let asd = formatter.format(amount);
-      console.log(asd);
-      return asd;
+      return formatter.format(amount);
     },
     goBack() {
       router.go(-1);
@@ -177,6 +198,11 @@ const store = new Vuex.Store({
           },
         })
         .then((response) => {
+          console.log(response.data.status, response.data.action);
+
+          if (response.data.status == 400) {
+            return Promise.reject(new Error(response.data.message));
+          }
           if (response.data.action !== "RESULT_ACTION_OMITTED") {
             context.state.searchSessionToken = response.data.sessionToken;
             context.state.sortingOptions = response.data.content.sortingOptions;
@@ -207,8 +233,7 @@ const store = new Vuex.Store({
           }
         })
         .catch((error) => {
-          console.log(error);
-          return error.msg;
+          return Promise.reject(new Error(error));
         });
     },
     async searchPoll(context) {
@@ -221,9 +246,12 @@ const store = new Vuex.Store({
             sessionToken: context.state.searchSessionToken,
           })
           .then((response) => {
+            if (response.data.status == 400) {
+              finishCondition = true;
+              return Promise.reject(new Error(response.data.message));
+            }
             if (response.data.status != 429)
-              // console.log(response.data.status, response.data.action);
-              console.log(response.data);
+              console.log(response.data.status, response.data.action);
             if (response.data.status === "RESULT_STATUS_COMPLETE") {
               finishCondition = true;
               console.log(response.data);
@@ -305,6 +333,8 @@ const store = new Vuex.Store({
           headers: { Authorization: `Bearer ${context.state.authToken}` },
         })
         .then((response) => {
+          console.log(response);
+          context.state.markedFlightData = response.data;
           return response;
         })
         .catch((error) => {
@@ -312,12 +342,35 @@ const store = new Vuex.Store({
           return error.msg;
         });
     },
-    async setMarkedFlightData(context) {
+    async setMarkedFlightData(context, payload) {
+      let dateOfDepart = new Date(context.state.searchObject.dateDepart);
+      let data = {
+        itineraryId: payload.itineraryId,
+        pricingOptionId: payload.pricingOptionId,
+        originIATA: payload.originIATA,
+        originEntityId: payload.originEntityId,
+        destinationIATA: payload.destinationIATA,
+        destinationEntityId: payload.destinationEntityId,
+        year: dateOfDepart.getFullYear(),
+        month: dateOfDepart.getMonth() + 1,
+        day: dateOfDepart.getDate(),
+        currency: context.state.currency.code,
+        market: context.state.market,
+        locale: context.state.locale,
+        adults: 1,
+        cabinClass: context.state.searchObject.cabinClass,
+        // childrenAges: req.body.childrenAges,
+      };
+      // console.log(data);
       await axios
-        .get("http://localhost:5555/getWatched", {
+        .request({
+          method: "POST",
+          url: "http://localhost:5555/setWatched",
           headers: { Authorization: `Bearer ${context.state.authToken}` },
+          data,
         })
         .then((response) => {
+          console.log(response);
           return response;
         })
         .catch((error) => {

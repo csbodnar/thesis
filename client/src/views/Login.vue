@@ -59,7 +59,7 @@ export default {
   },
   methods: {
     login() {
-      store.commit("login", {
+      store.dispatch("login", {
         email: this.email,
         password: this.password,
       });
