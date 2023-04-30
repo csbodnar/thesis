@@ -41,6 +41,7 @@ const store = new Vuex.Store({
     searchResultSegments: {},
     searchResultAgents: {},
     searchResultCarriers: {},
+    searchResultAlliances: {},
     sortingOption: "best",
     sortingOptions: {
       cheapest: [],
@@ -217,6 +218,8 @@ const store = new Vuex.Store({
               response.data.content.results.carriers;
             context.state.searchResultAgents =
               response.data.content.results.agents;
+            context.state.searchResultAlliances =
+              response.data.content.results.alliances;
             context.state.showingResults = true;
             context.state.loadingResults = false;
 

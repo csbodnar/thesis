@@ -30,7 +30,7 @@
             :dateObj="this.fromObject.departureDateTime"
           ></formatted-date>
         </b-card>
-        <div class="flight-card__divider"></div>
+        <b-icon-arrow-right variant="primary"></b-icon-arrow-right>
         <b-card :title="this.toObject.toPlace.name" class="flight-card__card">
           <formatted-date
             :dateObj="this.toObject.arrivalDateTime"
@@ -75,6 +75,8 @@ import FormattedDate from "./FormattedDate.vue";
 import FlightDetails from "./FlightDetails.vue";
 import { mapState } from "vuex";
 
+import { BIconArrowRight } from "bootstrap-vue";
+
 export default {
   name: "FlightComponent",
   props: {
@@ -84,6 +86,7 @@ export default {
   components: {
     FormattedDate,
     FlightDetails,
+    BIconArrowRight,
   },
   data() {
     return {
@@ -220,13 +223,6 @@ export default {
   text-align: center;
 }
 
-.flight-card__divider {
-  height: 2px;
-  width: 100%;
-  background-color: #ccc;
-  margin: 20px 0;
-}
-
 .flight-card__time-total {
   font-size: 24px;
   font-weight: bold;
@@ -242,11 +238,5 @@ export default {
 
 .flight-card__time-total__label {
   margin-right: 20px;
-}
-
-@media (max-width: 991.98px) {
-  .flight-card__divider {
-    display: none;
-  }
 }
 </style>
