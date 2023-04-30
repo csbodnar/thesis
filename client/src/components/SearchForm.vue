@@ -5,18 +5,22 @@
         <b-form-group v-slot="{ ariaDescribedby }">
           <div class="mt-2 d-flex justify-content-left">
             <b-form-radio
-              class="mr-5"
+              id="oneway"
               v-model="searchType"
               :aria-describedby="ariaDescribedby"
               value="oneway"
-              >{{ $t("oneway") }}
+            >
             </b-form-radio>
+            <label class="mx-1" for="oneway">{{ $t("oneway") }}</label>
             <b-form-radio
+              class="ms-5"
+              id="return"
               v-model="searchType"
               :aria-describedby="ariaDescribedby"
               value="return"
-              >{{ $t("return") }}
+            >
             </b-form-radio>
+            <label class="mx-1" for="return">{{ $t("return") }}</label>
           </div>
         </b-form-group>
       </div>
@@ -24,10 +28,10 @@
         <b-form-group
           id="from-input"
           :label="$t('fromLabel')"
-          label-cols="4"
+          label-cols="12"
           label-cols-lg="2"
           label-for="from"
-          class="d-flex flex-column flex-lg-row mt-2"
+          class="d-flex flex-column flex-lg-row mt-2 align-to-start"
         >
           <b-form-input
             id="from"
@@ -56,9 +60,9 @@
         id="to-input"
         :label="$t('toLabel')"
         label-for="to"
-        label-cols="4"
+        label-cols="12"
         label-cols-lg="2"
-        class="d-flex flex-column flex-lg-row mt-2"
+        class="d-flex flex-column flex-lg-row mt-2 align-to-start"
       >
         <b-form-input
           id="to"
@@ -85,9 +89,9 @@
         id="date-depart-input"
         :label="$t('dateDepartLabel')"
         label-for="dateDepart"
-        label-cols="4"
+        label-cols="12"
         label-cols-lg="2"
-        class="mb-2 d-flex flex-column flex-lg-row mt-2"
+        class="mb-2 d-flex flex-column flex-lg-row mt-2 align-to-start"
       >
         <b-form-datepicker
           id="dateDepart"
@@ -101,9 +105,9 @@
         id="date-return-input"
         :label="$t('dateReturnLabel')"
         label-for="dateReturn"
-        label-cols="4"
+        label-cols="12"
         label-cols-lg="2"
-        class="d-flex flex-column flex-lg-row mt-2"
+        class="d-flex flex-column flex-lg-row mt-2 align-to-start"
       >
         <b-form-datepicker
           id="dateReturn"
@@ -345,3 +349,8 @@ export default {
   },
 };
 </script>
+<style>
+.align-to-start {
+  text-align: left !important;
+}
+</style>

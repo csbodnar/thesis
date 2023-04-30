@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <b-navbar toggleable="md" type="dark" variant="info">
+    <b-navbar toggleable="md" type="light" variant="info">
       <b-navbar-brand href="#">LogoIcon</b-navbar-brand>
 
       <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
@@ -107,7 +107,10 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
+.navbar.navbar-dark.bg-info {
+  background-color: #aabb55 !important;
+}
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
