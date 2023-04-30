@@ -262,17 +262,26 @@ export default {
         dateOfReturn =
           this.dateReturn == "" ? new Date() : new Date(this.dateReturn);
       }
+      let originPlaceId = {};
+      if (this.from.object.iata) {
+        originPlaceId.iata = this.from.object.iata;
+      } else {
+        originPlaceId.entityId = this.from.object.entityId;
+      }
+      let destinationPlaceId = {};
+      if (this.to.object.iata) {
+        destinationPlaceId.iata = this.to.object.iata;
+      } else {
+        destinationPlaceId.entityId = this.to.object.entityId;
+      }
+      console.log(this.from.object, this.to.object);
       await store
         .dispatch("search", {
           query: {
             queryLegs: [
               {
-                originPlaceId: {
-                  entityId: this.from.object.entityId,
-                },
-                destinationPlaceId: {
-                  entityId: this.to.object.entityId,
-                },
+                originPlaceId,
+                destinationPlaceId,
                 date: {
                   year: dateOfDepart.getFullYear(),
                   month: dateOfDepart.getMonth() + 1,

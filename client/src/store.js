@@ -41,6 +41,7 @@ const store = new Vuex.Store({
     searchResultSegments: {},
     searchResultAgents: {},
     searchResultCarriers: {},
+    searchResultAlliances: {},
     sortingOption: "best",
     sortingOptions: {
       cheapest: [],
@@ -191,6 +192,8 @@ const store = new Vuex.Store({
               response.data.content.results.carriers;
             context.state.searchResultAgents =
               response.data.content.results.agents;
+            context.state.searchResultAlliances =
+              response.data.content.results.alliances;
             context.state.showingResults = true;
             context.state.loadingResults = false;
 
@@ -305,6 +308,7 @@ const store = new Vuex.Store({
           headers: { Authorization: `Bearer ${context.state.authToken}` },
         })
         .then((response) => {
+          console.log(response);
           return response;
         })
         .catch((error) => {
@@ -314,7 +318,7 @@ const store = new Vuex.Store({
     },
     async setMarkedFlightData(context) {
       await axios
-        .get("http://localhost:5555/getWatched", {
+        .post("http://localhost:5555/setWatched", {
           headers: { Authorization: `Bearer ${context.state.authToken}` },
         })
         .then((response) => {

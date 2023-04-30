@@ -30,7 +30,7 @@
             :dateObj="this.fromObject.departureDateTime"
           ></formatted-date>
         </b-card>
-        <div class="flight-card__divider"></div>
+        <b-icon-arrow-right variant="primary"></b-icon-arrow-right>
         <b-card :title="this.toObject.toPlace.name" class="flight-card__card">
           <formatted-date
             :dateObj="this.toObject.arrivalDateTime"
@@ -73,6 +73,8 @@
 import store from "./../store";
 import FormattedDate from "./FormattedDate.vue";
 import FlightDetails from "./FlightDetails.vue";
+import { BIconArrowRight } from "bootstrap-vue";
+
 export default {
   name: "FlightComponent",
   props: {
@@ -82,6 +84,7 @@ export default {
   components: {
     FormattedDate,
     FlightDetails,
+    BIconArrowRight,
   },
   data() {
     return {
@@ -95,7 +98,7 @@ export default {
     };
   },
   created() {
-    console.log(this.sorted);
+    // console.log(this.sorted);
     this.link = this.itinerary.pricingOptions[0].items[0].deepLink;
     let priceObj = this.itinerary.pricingOptions[0].price;
     const unitMultiplier = store.state.priceMultiplier[priceObj.unit];
@@ -182,11 +185,11 @@ export default {
   },
   methods: {
     setMarkedForUser() {
-      if (store.state.markedFlightData != null) {
-        store.dispatch("setMarkedFlightData", {});
-      } else {
-        //todo: pop-up if user wants to replace marked flight
-      }
+      store.dispatch("setMarkedFlightData", {});
+      // if (store.state.markedFlightData != null) {
+      // } else {
+      //   //todo: pop-up if user wants to replace marked flight
+      // }
     },
   },
 };
@@ -211,13 +214,6 @@ export default {
   text-align: center;
 }
 
-.flight-card__divider {
-  height: 2px;
-  width: 100%;
-  background-color: #ccc;
-  margin: 20px 0;
-}
-
 .flight-card__time-total {
   font-size: 24px;
   font-weight: bold;
@@ -233,11 +229,5 @@ export default {
 
 .flight-card__time-total__label {
   margin-right: 20px;
-}
-
-@media (max-width: 991.98px) {
-  .flight-card__divider {
-    display: none;
-  }
 }
 </style>
