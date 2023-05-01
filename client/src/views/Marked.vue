@@ -5,9 +5,14 @@
 import store from "./../store";
 export default {
   name: "MarkedFlight",
-  async created() {
-    let data = await store.dispatch("fetchMarkedFlightData");
-    console.log(data);
+  created() {
+    store.dispatch("fetchMarkedFlightData");
+    console.log(this.marked);
+  },
+  computed: {
+    marked() {
+      return store.state.markedFlightData;
+    },
   },
 };
 </script>

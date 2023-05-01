@@ -65,7 +65,31 @@
     </div>
     <!-- logged in-->
     <div v-if="isSignedIn">
-      <b-button variant="warning" @click="setMarkedForUser">Mark</b-button>
+      <b-button variant="warning" @click="markingValidation">Mark</b-button>
+      <b-modal :id="`mark-${this.id.replace(',', ':')}`" hide-footer>
+        <template #modal-title> Warning! </template>
+        <div class="d-block text-center">
+          <h5>
+            You already have a marked Itinerary, do You want to replace it?
+          </h5>
+          <span
+            >Check it
+            <router-link to="/marked" custom v-slot="{ navigate }">
+              <a href=":href" @click="navigate" @keypress.enter="navigate"
+                >here
+              </a>
+            </router-link></span
+          >
+        </div>
+        <div class="mt-3 modal-footer d-flex justify-content-center">
+          <button type="button" @click="onHide" class="btn btn-secondary">
+            Cancel
+          </button>
+          <button type="button" @click="onOk" class="btn btn-primary">
+            Yes
+          </button>
+        </div>
+      </b-modal>
     </div>
   </b-card>
 </template>
@@ -97,6 +121,7 @@ export default {
       stopCount: 0,
       link: "",
       number: 0,
+      modalShow: false,
     };
   },
   created() {
@@ -180,25 +205,39 @@ export default {
     itineraries() {
       return store.state.searchResultItineraries;
     },
+    agents() {
+      return store.state.searchResultAgents;
+    },
     sorted() {
       return store.getters.getSortedItineraries;
     },
     ...mapState(["isSignedIn"]),
   },
   methods: {
-    setMarkedForUser() {
-      if (store.state.markedFlightData == null) {
-        //==null
-        store.dispatch("setMarkedFlightData", {
-          itineraryId: this.id,
-          pricingOptionId: this.itinerary.pricingOptions[0].id,
-          originEntityId: this.toObject.toPlace.entityId,
-          destinationEntityId: this.fromObject.fromPlace.entityId,
-        });
+    markingValidation() {
+      if (
+        store.state.markedFlightData == null ||
+        store.state.markedFlightData == undefined
+      ) {
+        this.setMarkedForUser();
       } else {
-        // todo: pop-up if user wants to replace marked flight
-        window.alert("You allready have a marked Itinerary");
+        this.$bvModal.show(`mark-${this.id.replace(",", ":")}`);
       }
+    },
+    setMarkedForUser() {
+      store.dispatch("setMarkedFlightData", {
+        itineraryId: this.id,
+        pricingOptionId: this.itinerary.pricingOptions[0].id,
+        originEntityId: this.toObject.toPlace.entityId,
+        destinationEntityId: this.fromObject.fromPlace.entityId,
+      });
+    },
+    onHide() {
+      this.$bvModal.hide(`mark-${this.id.replace(",", ":")}`);
+    },
+    onOk() {
+      this.$bvModal.hide(`mark-${this.id.replace(",", ":")}`);
+      this.setMarkedForUser();
     },
   },
 };

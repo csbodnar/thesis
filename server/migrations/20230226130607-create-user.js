@@ -9,6 +9,15 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
+      ItineraryId: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        references: {
+          model: "Itineraries",
+          key: "id",
+        },
+        onDelete: "cascade",
+      },
       name: {
         allowNull: false,
         type: Sequelize.STRING,
