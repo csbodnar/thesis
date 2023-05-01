@@ -4,7 +4,8 @@ const bcrypt = require("bcrypt");
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     static associate(models) {
-      User.hasOne(models.Flight);
+      User.belongsTo(models.Itinerary);
+
     }
 
     checkPassword(password) {

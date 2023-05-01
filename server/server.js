@@ -15,7 +15,8 @@ app.use(bodyParser.json());
 app.use(cors());
 app.use(requestIp.mw());
 
-const { User, Flight } = require("./models");
+const { User, Itinerary } = require("./models");
+const itinerary = require("./models/itinerary");
 
 const HEADERS = {
   "content-type": "application/json",
@@ -35,10 +36,6 @@ const sequelize = new Sequelize({
   storage: "./database/database.sqlite",
 });
 
-app.get("/users", async function (req, res) {
-  const users = await User.findAll();
-  res.send(users);
-});
 app.post("/register", async function (req, res) {
   // let created_user = await User.create({
   //   name: "Jhon Doe",
@@ -77,13 +74,15 @@ app.get("/getWatched", async function (req, res) {
     if (user === null) {
       res.status(404).json({ msg: "User not found" });
     }
-    let flight = await user.getFlight();
-    res.status(200).json(flight ? flight : { msg: "no watched" });
+    let itinerary = await user.getItinerary();
+    res.status(200).json(itinerary ? itinerary : { msg: "no watched" });
   } catch (err) {
+    console.log(err.message);
     res.status(401).json({ msg: "Couldn't Authenticate", error: err.message });
   }
 });
 app.post("/setWatched", async function (req, res) {
+  console.log(req.body);
   try {
     let token = req.headers["authorization"].split(" ")[1];
     let decoded = jwt.verify(token, process.env.SECRET);
@@ -93,29 +92,46 @@ app.post("/setWatched", async function (req, res) {
     if (user === null) {
       res.status(404).json({ msg: "User not found" });
     }
-    const flight = await Flight.findOrCreate({
-      UserId: decoded.id,
-      itineraryId: req.body.itineraryId,
-      pricingOptionId: req.body.pricingOptionId,
-      originIATA: req.body.originIATA,
-      originEntityId: req.body.originEntityId,
-      destinationIATA: req.body.destinationIATA,
-      destinationEntityId: req.body.destinationEntityId,
-      year: req.body.year,
-      month: req.body.month,
-      day: req.body.day,
-      currency: req.body.currency,
-      market: req.body.market,
-      locale: req.body.locale,
-      adults: req.body.adults,
-      cabinClass: req.body.cabinClass,
-      childrenAges: req.body.childrenAges,
+    const [itinerary, created] = await Itinerary.findOrCreate({
+      where: {
+        itineraryId: req.body.itineraryId,
+        pricingOptionId: req.body.pricingOptionId,
+        year: req.body.year,
+        month: req.body.month,
+        day: req.body.day,
+        currency: req.body.currency,
+        market: req.body.market,
+        locale: req.body.locale,
+        cabinClass: req.body.cabinClass,
+      },
+      defaults: {
+        itineraryId: req.body.itineraryId,
+        pricingOptionId: req.body.pricingOptionId,
+        originIATA: req.body.originIATA ? req.body.originIATA : null,
+        originEntityId: req.body.originEntityId
+          ? req.body.originEntityId
+          : null,
+        destinationIATA: req.body.destinationIATA ? destinationIATA : null,
+        destinationEntityId: req.body.destinationEntityId
+          ? req.body.destinationEntityId
+          : null,
+        year: req.body.year,
+        month: req.body.month,
+        day: req.body.day,
+        currency: req.body.currency,
+        market: req.body.market,
+        locale: req.body.locale,
+        cabinClass: req.body.cabinClass,
+        adults: req.body.adults,
+        childrenAges: "",
+      },
     });
-    console.log(flight);
-    await user.setFlight(flight);
-    res.status(200).json({ msg: `flight is set to watched for user` });
+    console.log(itinerary);
+    await user.setItinerary(itinerary);
+    res.status(200).json({ msg: `succes`, itinerary: itinerary });
   } catch (err) {
-    res.status(401).json({ msg: "Couldn't Authenticate" });
+    console.log(err.message);
+    res.json({ msg: err.message });
   }
 });
 
@@ -170,7 +186,7 @@ app.post("/search", async function (req, res) {
   let resp;
   let returnCondition = false;
   let status = 200;
-  console.log(req.body.query.queryLegs);
+  console.log(req.body.query);
   do {
     await axios
       .request({
@@ -264,6 +280,7 @@ app.post("/suggestPlace", async function (req, res) {
 });
 
 app.post("/searchByItinerary", async function (req, res) {
+  console.log(req.body);
   let resData;
   await axios
     .request({
@@ -305,8 +322,8 @@ async function checkEveryUsersWatched() {
   console.log("check");
   const users = await User.findAll();
   users.forEach(async (user) => {
-    let flight = await user.getFlight();
-    console.log(flight);
+    let itinerary = await user.getItinerary();
+    console.log(itinerary);
   });
 }
 

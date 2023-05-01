@@ -34,6 +34,9 @@ export default {
       sorting: "",
       currentPage: 1,
       perPage: 6,
+      modalPromise: null,
+      resolveModal: null,
+      rejectModal: null,
     };
   },
   created() {},
@@ -77,5 +80,6 @@ export default {
       return this.filtered.length > 6;
     },
   },
+  methods: {},
 };
 </script>

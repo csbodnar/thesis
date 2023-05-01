@@ -44,7 +44,7 @@ export default {
       destinationPlace: "",
       flightTime: "",
       flightNumber: "",
-      imageUrl: "",
+      imageUrl: undefined,
       carrierName: "",
     };
   },
@@ -67,18 +67,9 @@ export default {
     this.flightTime = `${hours}h ${
       this.segment.durationInMinutes - hours * 60
     }m`;
-    let carrierId = this.segment.marketingCarrierId;
     let operatingCarrierId = this.segment.marketingCarrierId;
-    this.imageUrl = this.carriers[carrierId].imageUrl;
-    this.carrierName = this.carriers[carrierId].name;
-    if (this.imageUrl == "" || this.imageUrl == null) {
-      this.imageUrl = this.carriers[operatingCarrierId].imageUrl;
-      this.carrierName = this.carriers[operatingCarrierId].name;
-    }
-    if (this.imageUrl == "" || this.imageUrl == null) {
-      this.imageUrl = this.agents[carrierId].imageUrl;
-      this.carrierName = this.agents[carrierId].name;
-    }
+    this.imageUrl = this.carriers[operatingCarrierId].imageUrl;
+    this.carrierName = this.carriers[operatingCarrierId].name;
     this.flightNumber = this.segment.marketingFlightnumber;
     this.originPlace =
       store.state.searchResultPlaces[this.segment.originPlaceId].name;
@@ -88,12 +79,6 @@ export default {
   computed: {
     carriers() {
       return store.state.searchResultCarriers;
-    },
-    agents() {
-      return store.state.searchResultAgents;
-    },
-    aliances() {
-      return store.state.searchResultAlliances;
     },
   },
   methods: {},

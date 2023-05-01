@@ -55,7 +55,7 @@ const store = new Vuex.Store({
       dateReturn: new Date(),
       cabinClass: "CABIN_CLASS_UNSPECIFIED",
     },
-    markedFlightData: null,
+    markedFlightData: undefined,
   },
   getters: {
     getSearchObject(state) {
@@ -156,7 +156,7 @@ const store = new Vuex.Store({
         .then((response) => {
           context.state.authToken = response.data.token;
           context.state.isSignedIn = true;
-          context.dispatch("fetchMarkedFlightData");
+          context.dispatch("getMarkedFlightData");
           router.go(-1);
         })
         .catch((error) => {
@@ -222,14 +222,6 @@ const store = new Vuex.Store({
               response.data.content.results.alliances;
             context.state.showingResults = true;
             context.state.loadingResults = false;
-
-            // context.state.sortingOptions[context.state.sortingOption].forEach(
-            //   (idx) => {
-            //     console.log(
-            //       context.state.searchResultItineraries[idx.itineraryId]
-            //     );
-            //   }
-            // );
             return true;
           } else {
             //todo: error date from past
@@ -330,19 +322,77 @@ const store = new Vuex.Store({
         });
     },
 
-    async fetchMarkedFlightData(context) {
+    async getMarkedFlightData(context) {
       await axios
         .get("http://localhost:5555/getWatched", {
           headers: { Authorization: `Bearer ${context.state.authToken}` },
         })
         .then((response) => {
-          console.log(response);
-          context.state.markedFlightData = response.data;
-          return response;
+          if (response.data.msg == "no watched") {
+            context.state.markedFlightData = undefined;
+          } else {
+            context.state.markedFlightData = response.data;
+          }
+          return response.data;
         })
         .catch((error) => {
           console.log(error);
           return error.msg;
+        });
+    },
+    async fetchMarkedFlightData(context) {
+      await axios
+        .post("http://localhost:5555/search", {
+          query: {
+            market: context.state.markedFlightData.market,
+            locale: context.state.markedFlightData.locale,
+            currency: context.state.markedFlightData.currency,
+            queryLegs: [
+              {
+                originPlaceId: {
+                  entityId: context.state.markedFlightData.originEntityId,
+                },
+                destinationPlaceId: {
+                  entityId: context.state.markedFlightData.destinationEntityId,
+                },
+                date: {
+                  year: context.state.markedFlightData.year,
+                  month: context.state.markedFlightData.month,
+                  day: context.state.markedFlightData.day,
+                },
+              },
+            ],
+            cabinClass: context.state.markedFlightData.cabinClass,
+            adults: context.state.markedFlightData.adults,
+          },
+        })
+        .then(async (response) => {
+          console.log(response.data.status, response.data.action);
+
+          if (response.data.status == 400) {
+            console.log(response.data.message);
+          }
+          if (response.data.action !== "RESULT_ACTION_OMITTED") {
+            console.log(response.data);
+            await axios
+              .post("http://localhost:5555/searchByItinerary", {
+                data: {
+                  sessionToken: response.data.sessionToken,
+                  itineraryId: context.state.markedFlightData.itineraryId,
+                },
+              })
+              .then((resp) => {
+                console.log(resp.data);
+              })
+              .catch((err) => {
+                console.log(err);
+              });
+          } else {
+            //todo: error date from past
+          }
+        })
+        .catch((error) => {
+          console.log(error);
         });
     },
     async setMarkedFlightData(context, payload) {

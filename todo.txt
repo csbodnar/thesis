@@ -1,4 +1,7 @@
-styling
-autosuggest (for searching places)
-nearculture (endpoint and ip fetch)
-vue component that shows an itinerary
+styling(labels...)
+one-to-many between flight and user --done
+show marked using the checkUsersMarked() function at serverside
+delete flight from database if no user marked them
+mail user if it is reasonable 
+    -scoring system to find out if it is reasonable
+
