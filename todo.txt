@@ -1,4 +1,4 @@
-styling(labels...)
+styling(labels...) --labels done
 one-to-many between flight and user --done
 show marked using the checkUsersMarked() function at serverside
 delete flight from database if no user marked them

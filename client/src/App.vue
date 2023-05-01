@@ -1,7 +1,25 @@
 <template>
   <div id="app">
     <b-navbar toggleable="md" type="light" variant="info">
-      <b-navbar-brand href="#">LogoIcon</b-navbar-brand>
+      <router-link to="/" custom v-slot="{ navigate }">
+        <b-navbar-brand
+          @click="navigate"
+          @keypress.enter="navigate"
+          role="button"
+        >
+          <b-img
+            :src="require('@/assets/logo.png')"
+            rounded="circle"
+            alt="LOGO"
+            v-bind="{
+              width: 60,
+              height: 60,
+              class: 'ms-3',
+            }"
+          ></b-img>
+          FlyCloud
+        </b-navbar-brand>
+      </router-link>
 
       <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
       <b-collapse id="nav-collapse" is-nav>
@@ -17,7 +35,7 @@
         </b-navbar-nav>
 
         <!-- Right aligned nav items -->
-        <b-navbar-nav class="ml-auto">
+        <b-navbar-nav class="mb-auto">
           <b-nav-item-dropdown text="LANG" right>
             <b-dropdown-item-button value="en-US" @click="changeLocale"
               >English(US)</b-dropdown-item-button

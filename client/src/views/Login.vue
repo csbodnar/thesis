@@ -11,7 +11,7 @@
         label-for="email"
         label-cols="4"
         label-cols-lg="2"
-        class="d-flex flex-column flex-lg-row mt-4"
+        class="d-flex flex-column flex-lg-row mt-2 align-to-start"
       >
         <b-form-input
           id="email"
@@ -28,7 +28,7 @@
         label-for="password"
         label-cols="4"
         label-cols-lg="2"
-        class="d-flex flex-column flex-lg-row mt-4"
+        class="d-flex flex-column flex-lg-row mt-2 align-to-start"
       >
         <b-form-input
           id="password"

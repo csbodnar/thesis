@@ -367,19 +367,17 @@ const store = new Vuex.Store({
           },
         })
         .then(async (response) => {
-          console.log(response.data.status, response.data.action);
+          console.log(response.data.status);
 
           if (response.data.status == 400) {
             console.log(response.data.message);
           }
           if (response.data.action !== "RESULT_ACTION_OMITTED") {
-            console.log(response.data);
+            console.log(response.data.sessionToken);
             await axios
               .post("http://localhost:5555/searchByItinerary", {
-                data: {
-                  sessionToken: response.data.sessionToken,
-                  itineraryId: context.state.markedFlightData.itineraryId,
-                },
+                sessionToken: response.data.sessionToken,
+                itineraryId: context.state.markedFlightData.itineraryId,
               })
               .then((resp) => {
                 console.log(resp.data);

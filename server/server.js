@@ -37,11 +37,6 @@ const sequelize = new Sequelize({
 });
 
 app.post("/register", async function (req, res) {
-  // let created_user = await User.create({
-  //   name: "Jhon Doe",
-  //   email: "jhon.doe@example.com",
-  //   password: "asd123",
-  // });
   //TODO: validate unique email
   created_user = await User.create(req.body);
   let token = jwt.sign(
@@ -182,7 +177,6 @@ app.get("/fetchMarkets", async function (req, res) {
   res.send(resData);
 });
 app.post("/search", async function (req, res) {
-  // todo while status !== 'RESULT_STATUS_INCOMPLETE' loop try
   let resp;
   let returnCondition = false;
   let status = 200;
@@ -280,7 +274,7 @@ app.post("/suggestPlace", async function (req, res) {
 });
 
 app.post("/searchByItinerary", async function (req, res) {
-  console.log(req.body);
+  console.log("sessionToken xd", req.body.sessionToken);
   let resData;
   await axios
     .request({
@@ -296,6 +290,7 @@ app.post("/searchByItinerary", async function (req, res) {
       refreshToken = response.data.refreshSessionToken;
     })
     .catch(function (error) {
+      console.log(error.message);
       resData = error;
     });
   res.send(resData);

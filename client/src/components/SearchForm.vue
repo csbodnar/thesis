@@ -3,7 +3,7 @@
     <b-form @submit.prevent="search">
       <div>
         <b-form-group v-slot="{ ariaDescribedby }">
-          <div class="mt-2 d-flex justify-content-left">
+          <div class="mt-2 d-flex justify-content-start">
             <b-form-radio
               id="oneway"
               v-model="searchType"
