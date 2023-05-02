@@ -17,7 +17,9 @@
               class: 'ms-3',
             }"
           ></b-img>
-          FlyCloud
+          <i>
+            <strong> FlyCloud </strong>
+          </i>
         </b-navbar-brand>
       </router-link>
 

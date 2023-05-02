@@ -30,7 +30,10 @@
             :dateObj="this.fromObject.departureDateTime"
           ></formatted-date>
         </b-card>
-        <b-icon-arrow-right variant="primary"></b-icon-arrow-right>
+        <b-icon-arrow-right
+          class="align-self-center"
+          variant="primary"
+        ></b-icon-arrow-right>
         <b-card :title="this.toObject.toPlace.name" class="flight-card__card">
           <formatted-date
             :dateObj="this.toObject.arrivalDateTime"
@@ -225,12 +228,17 @@ export default {
       }
     },
     setMarkedForUser() {
-      store.dispatch("setMarkedFlightData", {
-        itineraryId: this.id,
-        pricingOptionId: this.itinerary.pricingOptions[0].id,
-        originEntityId: this.toObject.toPlace.entityId,
-        destinationEntityId: this.fromObject.fromPlace.entityId,
-      });
+      store
+        .dispatch("setMarkedFlightData", {
+          itineraryId: this.id,
+          pricingOptionId: this.itinerary.pricingOptions[0].id,
+          originEntityId: this.toObject.toPlace.entityId,
+          destinationEntityId: this.fromObject.fromPlace.entityId,
+        })
+        .then((response) => {
+          console.log(response);
+          store.dispatch("getMarkedFlightData");
+        });
     },
     onHide() {
       this.$bvModal.hide(`mark-${this.id.replace(",", ":")}`);

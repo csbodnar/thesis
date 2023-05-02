@@ -274,7 +274,7 @@ app.post("/suggestPlace", async function (req, res) {
 });
 
 app.post("/searchByItinerary", async function (req, res) {
-  console.log("sessionToken xd", req.body.sessionToken);
+  console.log("sessionToken: ", req.body.sessionToken);
   let resData;
   await axios
     .request({
@@ -298,16 +298,18 @@ app.post("/searchByItinerary", async function (req, res) {
 
 app.post("/refreshByItinerary", async function (req, res) {
   let resData;
+  console.log(req.body);
   await axios
     .request({
-      method: "POST",
-      url: `https://partners.api.skyscanner.net/apiservices/v3/flights/live/itineraryrefresh/poll/${refreshToken}`,
+      method: "GET",
+      url: `https://partners.api.skyscanner.net/apiservices/v3/flights/live/itineraryrefresh/poll/${req.body.refreshSessionToken}`,
       headers: HEADERS,
     })
     .then(function (response) {
       resData = response.data;
     })
     .catch(function (error) {
+      console.log(error.message);
       resData = error;
     });
   res.send(resData);
