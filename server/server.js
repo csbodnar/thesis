@@ -180,7 +180,7 @@ app.post("/search", async function (req, res) {
   let resp;
   let returnCondition = false;
   let status = 200;
-  console.log(req.body.query);
+  console.log(req.body);
   do {
     await axios
       .request({

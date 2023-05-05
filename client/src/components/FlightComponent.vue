@@ -232,8 +232,8 @@ export default {
         .dispatch("setMarkedFlightData", {
           itineraryId: this.id,
           pricingOptionId: this.itinerary.pricingOptions[0].id,
-          originEntityId: this.toObject.toPlace.entityId,
-          destinationEntityId: this.fromObject.fromPlace.entityId,
+          originEntityId: this.fromObject.fromPlace.entityId,
+          destinationEntityId: this.toObject.toPlace.entityId,
         })
         .then((response) => {
           console.log(response);

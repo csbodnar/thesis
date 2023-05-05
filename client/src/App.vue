@@ -7,18 +7,19 @@
           @keypress.enter="navigate"
           role="button"
         >
-          <b-img
-            :src="require('@/assets/logo.png')"
-            rounded="circle"
-            alt="LOGO"
-            v-bind="{
-              width: 60,
-              height: 60,
-              class: 'ms-3',
-            }"
-          ></b-img>
           <i>
-            <strong> FlyCloud </strong>
+            <b-img
+              class="inline"
+              :src="require('@/assets/logo.png')"
+              rounded="circle"
+              alt="LOGO"
+              v-bind="{
+                width: 60,
+                height: 60,
+                class: 'ms-3',
+              }"
+            ></b-img>
+            <h1 class="inline">FlyCloud</h1>
           </i>
         </b-navbar-brand>
       </router-link>
@@ -37,7 +38,7 @@
         </b-navbar-nav>
 
         <!-- Right aligned nav items -->
-        <b-navbar-nav class="mb-auto">
+        <b-navbar-nav class="ml-5">
           <b-nav-item-dropdown text="LANG" right>
             <b-dropdown-item-button value="en-US" @click="changeLocale"
               >English(US)</b-dropdown-item-button
@@ -137,5 +138,14 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
+}
+.inline {
+  display: inline-block;
+}
+h1 {
+  margin: 0 0 0 15px;
+}
+b-navbar-nav {
+  margin-left: 100px;
 }
 </style>
