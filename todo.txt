@@ -4,4 +4,12 @@ show marked using the checkUsersMarked() function at serverside
 delete flight from database if no user marked them
 mail user if it is reasonable 
     -scoring system to find out if it is reasonable
-
+    
+	css to folder
+	strong -> class="font-weight-bold"
+	cabin class to label default:economy
+	test
+	remove search page
+	validation
+	date at least today
+	late nigth today itineraries -> 
