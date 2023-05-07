@@ -26,36 +26,27 @@
 
       <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
       <b-collapse id="nav-collapse" is-nav>
-        <b-navbar-nav>
-          <router-link to="/search" custom v-slot="{ navigate }">
-            <b-nav-item
-              @click="navigate"
-              @keypress.enter="navigate"
-              role="button"
-              >{{ $t("search") }}</b-nav-item
-            >
-          </router-link>
-        </b-navbar-nav>
-
         <!-- Right aligned nav items -->
         <b-navbar-nav class="ml-5">
-          <b-nav-item-dropdown text="LANG" right>
-            <b-dropdown-item-button value="en-US" @click="changeLocale"
-              >English(US)</b-dropdown-item-button
-            >
-            <b-dropdown-item-button value="en-GB  " @click="changeLocale"
-              >English(GB)</b-dropdown-item-button
-            >
-            <b-dropdown-item-button value="hu-HU" @click="changeLocale"
-              >Magyar</b-dropdown-item-button
-            >
-            <b-dropdown-item-button value="fr-FR" @click="changeLocale"
-              >Français</b-dropdown-item-button
-            >
-            <b-dropdown-item-button value="de-DE" @click="changeLocale"
-              >Deutsch</b-dropdown-item-button
-            >
-          </b-nav-item-dropdown>
+          <b>
+            <b-nav-item-dropdown text="LANG" right>
+              <b-dropdown-item-button value="en-US" @click="changeLocale"
+                >English(US)</b-dropdown-item-button
+              >
+              <b-dropdown-item-button value="en-GB  " @click="changeLocale"
+                >English(GB)</b-dropdown-item-button
+              >
+              <b-dropdown-item-button value="hu-HU" @click="changeLocale"
+                >Magyar</b-dropdown-item-button
+              >
+              <b-dropdown-item-button value="fr-FR" @click="changeLocale"
+                >Français</b-dropdown-item-button
+              >
+              <b-dropdown-item-button value="de-DE" @click="changeLocale"
+                >Deutsch</b-dropdown-item-button
+              >
+            </b-nav-item-dropdown>
+          </b>
           <router-link
             v-if="!isSignedIn"
             to="/registry"
@@ -63,11 +54,15 @@
             v-slot="{ navigate }"
           >
             <b-nav-item
+              class="font-weight-bold"
               @click="navigate"
               @keypress.enter="navigate"
               role="button"
-              >{{ $t("registry") }}</b-nav-item
             >
+              <b>
+                {{ $t("registry") }}
+              </b>
+            </b-nav-item>
           </router-link>
           <div v-if="isSignedIn">
             <b-nav-item-dropdown right>
@@ -92,8 +87,11 @@
                 @click="navigate"
                 @keypress.enter="navigate"
                 role="button"
-                >{{ $t("loginTab") }}</b-nav-item
               >
+                <b>
+                  {{ $t("loginTab") }}
+                </b>
+              </b-nav-item>
             </router-link>
           </div>
         </b-navbar-nav>

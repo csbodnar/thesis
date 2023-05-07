@@ -30,7 +30,7 @@ export default {
         "Nov",
         "Dec",
       ];
-      return `${months[this.dateObj.getMonth()]} ${this.dateObj.getDate()}`;
+      return `${months[this.dateObj.getMonth() - 1]} ${this.dateObj.getDate()}`;
     },
     year() {
       return this.dateObj.getFullYear();

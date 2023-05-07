@@ -1,6 +1,6 @@
 <template>
   <b-container class="bg-info rounded mt-3 col-lg-6 col-md-12" fluid="md">
-    <b-form @submit.prevent="search">
+    <b-form class="py-3" @submit.prevent="search">
       <div>
         <b-form-group v-slot="{ ariaDescribedby }">
           <div class="mt-2 d-flex justify-content-start">
@@ -95,6 +95,7 @@
       >
         <b-form-datepicker
           id="dateDepart"
+          :min="minDate"
           v-model="searchObject.dateDepart"
           class="order-lg-1"
         ></b-form-datepicker>
@@ -111,82 +112,77 @@
       >
         <b-form-datepicker
           id="dateReturn"
+          :min="minDate"
           v-model="searchObject.dateReturn"
           class="mb-2 order-lg-1"
         ></b-form-datepicker>
       </b-form-group>
 
       <div class="d-flex flex-wrap justify-content-center align-items-center">
-        <div class="mr-auto px-2">
-          <b-form-group>
+        <div class="d-flex flex-wrap flex-row align-items-center">
+          <b-form-group class="mx-3">
             <b-form-checkbox
               id="direct"
               :checked="directFlightSearch"
               @change="toggleDirectFlightSearch"
               name="direct"
             >
-              {{ $t("direct") }}
+              <label class="mx-1" for="direct">{{ $t("direct") }}</label>
             </b-form-checkbox>
           </b-form-group>
-          <b-form-select
-            variant="secondary"
-            rounded
-            :value="searchObject.cabinClass"
-            @change="changeCabinClass"
-          >
-            <b-form-select-option value="CABIN_CLASS_UNSPECIFIED">
+          <div class="d-flex flex-column">
+            <label for="cabin-class">
               {{ $t("cabinClass") }}
-            </b-form-select-option>
-            <b-form-select-option value="CABIN_CLASS_ECONOMY">
-              {{ $t("economyClass") }}
-            </b-form-select-option>
-            <b-form-select-option value="CABIN_CLASS_PREMIUM_ECONOMY">
-              {{ $t("premiumEconomyClass") }}
-            </b-form-select-option>
-            <b-form-select-option value="CABIN_CLASS_BUSINESS">
-              {{ $t("buisnessClass") }}
-            </b-form-select-option>
-            <b-form-select-option value="CABIN_CLASS_FIRST">
-              {{ $t("firstClass") }}
-            </b-form-select-option>
-          </b-form-select>
+            </label>
+            <b-form-select
+              variant="secondary"
+              id="cabin-class"
+              rounded
+              :value="searchObject.cabinClass"
+              @change="changeCabinClass"
+              :options="options"
+            >
+            </b-form-select>
+          </div>
         </div>
-        <div v-if="isUsingSearhForm">
-          <b-dropdown
-            id="dropdown-buttons"
-            v-model="sortingOption"
-            text="Sorting By"
-            class="m-2"
+        <div class="d-flex flex-wrap flex-row align-items-center">
+          <div v-if="isUsingSearhForm">
+            <b-dropdown
+              id="dropdown-buttons"
+              v-model="sortingOption"
+              text="Sorting By"
+              class="m-1"
+              variant="light"
+              style="width: 8rem"
+            >
+              <b-dropdown-item-button
+                @click="setSortingOption"
+                :active="sortingOption == 'best'"
+                value="best"
+                >Best</b-dropdown-item-button
+              >
+              <b-dropdown-item-button
+                @click="setSortingOption"
+                :active="sortingOption == 'cheapest'"
+                value="cheapest"
+                >Cheapest</b-dropdown-item-button
+              >
+              <b-dropdown-item-button
+                @click="setSortingOption"
+                :active="sortingOption == 'fastest'"
+                value="fastest"
+                >Fastest</b-dropdown-item-button
+              >
+            </b-dropdown>
+          </div>
+          <b-button
+            class="m-1"
+            type="submit"
             variant="light"
-            style="width: 8rem"
+            style="width: 8rem; height: 2.5rem"
+            >{{ $t("search") }}</b-button
           >
-            <b-dropdown-item-button
-              @click="setSortingOption"
-              :active="sortingOption == 'best'"
-              value="best"
-              >Best</b-dropdown-item-button
-            >
-            <b-dropdown-item-button
-              @click="setSortingOption"
-              :active="sortingOption == 'cheapest'"
-              value="cheapest"
-              >Cheapest</b-dropdown-item-button
-            >
-            <b-dropdown-item-button
-              @click="setSortingOption"
-              :active="sortingOption == 'fastest'"
-              value="fastest"
-              >Fastest</b-dropdown-item-button
-            >
-          </b-dropdown>
         </div>
-        <b-button
-          class="px-2"
-          type="submit"
-          variant="light"
-          style="width: 8rem; height: 2.5rem"
-          >{{ $t("search") }}</b-button
-        >
       </div>
     </b-form>
   </b-container>
@@ -205,6 +201,7 @@ export default {
   name: "SearchForm",
   data() {
     return {
+      minDate: new Date(),
       searchType: "oneway",
       from: {
         search: "",
@@ -214,7 +211,15 @@ export default {
         search: "",
         object: {},
       },
-      cabinClass: "CABIN_CLASS_UNSPECIFIED",
+      options: [
+        { value: "CABIN_CLASS_ECONOMY", text: this.$t("economyClass") },
+        {
+          value: "CABIN_CLASS_PREMIUM_ECONOMY",
+          text: this.$t("premiumEconomyClass"),
+        },
+        { value: "CABIN_CLASS_BUSINESS", text: this.$t("buisnessClass") },
+        { value: "CABIN_CLASS_FIRST", text: this.$t("firstClass") },
+      ],
     };
   },
   created() {

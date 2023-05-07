@@ -4,18 +4,12 @@ import store from "./store";
 import LoginComponent from "./views/Login.vue";
 import RegistryComponent from "./views/Registry.vue";
 import SearchComponent from "./views/Search.vue";
-import HomeComponent from "./views/Home.vue";
 import MarkedFlight from "./views/Marked";
 
 Vue.use(VueRouter);
 
 const router = new VueRouter({
   routes: [
-    {
-      path: "/",
-      name: "home",
-      component: HomeComponent,
-    },
     {
       path: "/login",
       name: "login",
@@ -41,7 +35,7 @@ const router = new VueRouter({
       },
     },
     {
-      path: "/search",
+      path: "/",
       name: "search",
       component: SearchComponent,
     },
