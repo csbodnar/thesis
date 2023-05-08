@@ -7,6 +7,12 @@
         v-for="element in currentPageItems"
         :itinerary="itineraries[element.itineraryId]"
         :id="element.itineraryId"
+        :legs="legs"
+        :segments="segments"
+        :places="places"
+        :carriers="carriers"
+        :agents="agents"
+        :showMarkButton="isSignedIn"
       ></flight-component>
       <b-pagination
         v-if="showPaging"
@@ -22,6 +28,7 @@
 import SearchForm from "../components/SearchForm.vue";
 import FlightComponent from "../components/FlightComponent.vue";
 import store from "../store";
+import { mapState } from "vuex";
 export default {
   name: "SearchComponent",
   components: {
@@ -44,6 +51,22 @@ export default {
     itineraries() {
       return store.state.searchResultItineraries;
     },
+    legs() {
+      return store.state.searchResultLegs;
+    },
+    segments() {
+      return store.state.searchResultSegments;
+    },
+    places() {
+      return store.state.searchResultPlaces;
+    },
+    carriers() {
+      return store.state.searchResultCarriers;
+    },
+    agents() {
+      return store.state.searchResultAgents;
+    },
+    ...mapState(["isSignedIn"]),
     showResults() {
       return store.state.showingResults;
     },

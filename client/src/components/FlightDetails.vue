@@ -23,7 +23,6 @@
   </div>
 </template>
 <script>
-import store from "./../store";
 import FormattedDate from "./FormattedDate.vue";
 import { BIconArrowRight } from "bootstrap-vue";
 export default {
@@ -31,6 +30,8 @@ export default {
   props: {
     segment: Object,
     id: String,
+    places: Object,
+    carriers: Object,
   },
   components: {
     FormattedDate,
@@ -71,16 +72,8 @@ export default {
     this.imageUrl = this.carriers[operatingCarrierId].imageUrl;
     this.carrierName = this.carriers[operatingCarrierId].name;
     this.flightNumber = this.segment.marketingFlightnumber;
-    this.originPlace =
-      store.state.searchResultPlaces[this.segment.originPlaceId].name;
-    this.destinationPlace =
-      store.state.searchResultPlaces[this.segment.destinationPlaceId].name;
+    this.originPlace = this.places[this.segment.originPlaceId].name;
+    this.destinationPlace = this.places[this.segment.destinationPlaceId].name;
   },
-  computed: {
-    carriers() {
-      return store.state.searchResultCarriers;
-    },
-  },
-  methods: {},
 };
 </script>

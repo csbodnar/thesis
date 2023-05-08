@@ -51,9 +51,11 @@
         <b-collapse :id="`stops-info_${this.id.replace(',', ':')}`">
           <b-card title="Details">
             <flight-details
-              v-for="segment in Object.entries(segments)"
+              v-for="segment in Object.entries(ownSegments)"
               :key="segment[0]"
               :segment="segment[1]"
+              :places="places"
+              :carriers="carriers"
             ></flight-details>
           </b-card>
         </b-collapse>
@@ -62,12 +64,35 @@
         <div class="flight-card__time-total__label">Total Time:</div>
         <div class="flight-card__time-total__time">{{ this.travelTime }}</div>
       </div>
-      <b-button variant="primary" target="_blank" :href="this.link">{{
-        this.price
-      }}</b-button>
+      <div v-if="!hasMoreOptions">
+        <b-button
+          variant="primary"
+          target="_blank"
+          :href="this.pricingOptions[0].link"
+          >{{ this.pricingOptions[0].price }}
+        </b-button>
+      </div>
+      <div v-else>
+        <b-button v-b-toggle.collapse-1 variant="primary">
+          From {{ this.pricingOptions[0].price }}</b-button
+        >
+        <b-collapse id="collapse-1" class="mt-2">
+          <b-card
+            v-for="option in Object.entries(pricingOptions)"
+            :key="option[0]"
+          >
+            <div v-for="agent in option.agents" :key="agent.name">
+              <img :src="agent.imageUrl" :alt="agent.name" />
+            </div>
+            <b-button variant="primary" target="_blank" :href="option[1].link"
+              >{{ option[1].price }}
+            </b-button>
+          </b-card>
+        </b-collapse>
+      </div>
     </div>
     <!-- logged in-->
-    <div v-if="isSignedIn">
+    <div v-if="showMarkButton">
       <b-button variant="warning" @click="markingValidation">Mark</b-button>
       <b-modal :id="`mark-${this.id.replace(',', ':')}`" hide-footer>
         <template #modal-title> Warning! </template>
@@ -100,8 +125,6 @@
 import store from "./../store";
 import FormattedDate from "./FormattedDate.vue";
 import FlightDetails from "./FlightDetails.vue";
-import { mapState } from "vuex";
-
 import { BIconArrowRight } from "bootstrap-vue";
 
 export default {
@@ -109,6 +132,12 @@ export default {
   props: {
     itinerary: Object,
     id: String,
+    legs: Object,
+    segments: Object,
+    places: Object,
+    carriers: Object,
+    agents: Object,
+    showMarkButton: Boolean,
   },
   components: {
     FormattedDate,
@@ -117,40 +146,45 @@ export default {
   },
   data() {
     return {
-      price: "",
+      pricingOptions: [],
       fromObject: {},
       toObject: {},
       travelTime: "",
       stopCount: 0,
-      link: "",
-      number: 0,
       modalShow: false,
     };
   },
   created() {
-    this.link = this.itinerary.pricingOptions[0].items[0].deepLink;
-    let priceObj = this.itinerary.pricingOptions[0].price;
-    const unitMultiplier = store.state.priceMultiplier[priceObj.unit];
-    const amount = parseInt(priceObj.amount) / unitMultiplier;
-    const formatter = new Intl.NumberFormat(store.state.locale, {
-      style: "currency",
-      currency: this.currency.code,
-      currencyDisplay: "symbol",
-      minimumFractionDigits: this.currency.decimalDigits,
-      maximumFractionDigits: this.currency.decimalDigits,
-      useGrouping: true,
-      grouping: this.currency.thousandsSeparator,
-      decimalSeparator: this.currency.decimalSeparator,
+    this.itinerary.pricingOptions.forEach((option) => {
+      let priceObj = option.price;
+      const unitMultiplier = store.state.priceMultiplier[priceObj.unit];
+      const amount = parseInt(priceObj.amount) / unitMultiplier;
+      const formatter = new Intl.NumberFormat(store.state.locale, {
+        style: "currency",
+        currency: this.currency.code,
+        currencyDisplay: "symbol",
+        minimumFractionDigits: this.currency.decimalDigits,
+        maximumFractionDigits: this.currency.decimalDigits,
+        useGrouping: true,
+        grouping: this.currency.thousandsSeparator,
+        decimalSeparator: this.currency.decimalSeparator,
+      });
+      let agents = option.agentIds.map((id) => {
+        return this.agents[id];
+      });
+      this.pricingOptions.push({
+        price: formatter.format(amount),
+        link: option.items[0].deepLink,
+        agents,
+      });
     });
+    console.log(this.pricingOptions);
 
-    this.price = formatter.format(amount);
-
-    const firstLeg = store.state.searchResultLegs[this.itinerary.legIds[0]];
-    const firstSegment =
-      store.state.searchResultSegments[firstLeg.segmentIds[0]];
+    const firstLeg = this.legs[this.itinerary.legIds[0]];
+    const firstSegment = this.segments[firstLeg.segmentIds[0]];
 
     this.fromObject = {
-      fromPlace: store.state.searchResultPlaces[firstSegment.originPlaceId],
+      fromPlace: this.places[firstSegment.originPlaceId],
       departureDateTime: new Date(
         firstSegment.departureDateTime.year,
         firstSegment.departureDateTime.month,
@@ -161,16 +195,12 @@ export default {
     };
 
     const lastLeg =
-      store.state.searchResultLegs[
-        this.itinerary.legIds[this.itinerary.legIds.length - 1]
-      ];
+      this.legs[this.itinerary.legIds[this.itinerary.legIds.length - 1]];
     const lastSegment =
-      store.state.searchResultSegments[
-        lastLeg.segmentIds[lastLeg.segmentIds.length - 1]
-      ];
+      this.segments[lastLeg.segmentIds[lastLeg.segmentIds.length - 1]];
 
     this.toObject = {
-      toPlace: store.state.searchResultPlaces[lastSegment.destinationPlaceId],
+      toPlace: this.places[lastSegment.destinationPlaceId],
       arrivalDateTime: new Date(
         lastSegment.arrivalDateTime.year,
         lastSegment.arrivalDateTime.month,
@@ -182,9 +212,8 @@ export default {
 
     let sumMinutes = 0;
     this.itinerary.legIds.forEach((legId) => {
-      sumMinutes += store.state.searchResultLegs[legId].durationInMinutes;
-      this.stopCount +=
-        store.state.searchResultLegs[legId].segmentIds.length - 1;
+      sumMinutes += this.legs[legId].durationInMinutes;
+      this.stopCount += this.legs[legId].segmentIds.length - 1;
     });
     let hours = Math.floor(sumMinutes / 60);
     this.travelTime = `${hours}h ${sumMinutes - hours * 60}m`;
@@ -196,31 +225,24 @@ export default {
     isWideScreen() {
       return window.innerWidth >= 992;
     },
-    segments() {
+    ownSegments() {
       let segments = [];
       this.itinerary.legIds.forEach((legId) => {
-        store.state.searchResultLegs[legId].segmentIds.forEach((segmentId) => {
-          segments.push(store.state.searchResultSegments[segmentId]);
+        this.legs[legId].segmentIds.forEach((segmentId) => {
+          segments.push(this.segments[segmentId]);
         });
       });
       return segments;
     },
-    itineraries() {
-      return store.state.searchResultItineraries;
+    hasMoreOptions() {
+      return this.itinerary.pricingOptions.length > 1;
     },
-    agents() {
-      return store.state.searchResultAgents;
-    },
-    sorted() {
-      return store.getters.getSortedItineraries;
-    },
-    ...mapState(["isSignedIn"]),
   },
   methods: {
     markingValidation() {
       if (
-        store.state.markedFlightData == null ||
-        store.state.markedFlightData == undefined
+        store.state.markedFlightData.raw == null ||
+        store.state.markedFlightData.raw == undefined
       ) {
         this.setMarkedForUser();
       } else {

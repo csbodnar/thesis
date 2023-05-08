@@ -1,29 +1,44 @@
 <template>
-  <h1>MarkedFlight</h1>
+  <flight-component
+    v-if="!loading"
+    :itinerary="markedDetailed.itineraries[markedRaw.itineraryId]"
+    :id="markedRaw.itineraryId"
+    :legs="markedDetailed.legs"
+    :segments="markedDetailed.segments"
+    :places="markedDetailed.places"
+    :carriers="markedDetailed.carriers"
+    :agents="markedDetailed.agents"
+    :showMarkButton="false"
+  ></flight-component>
 </template>
 <script>
 import store from "./../store";
+import FlightComponent from "../components/FlightComponent.vue";
 export default {
   name: "MarkedFlight",
+  components: {
+    FlightComponent,
+  },
   data() {
     return {
-      places: [],
-      agents: [],
-      carriers: [],
-      pricingOptions: [],
-      legIds: [],
-      segments: [],
+      loading: true,
     };
   },
-  created() {
-    store.dispatch("fetchMarkedFlightData").then((response) => {
-      console.log(response.data);
+  async created() {
+    if (this.markedDetailed != undefined) {
+      this.loading = false;
+    }
+    await store.dispatch("fetchMarkedFlightData").then(() => {
+      this.loading = false;
     });
-    // console.log(this.marked);
+    console.log(this.markedDetailed);
   },
   computed: {
-    marked() {
-      return store.state.markedFlightData;
+    markedDetailed() {
+      return store.state.markedFlightData.detailed;
+    },
+    markedRaw() {
+      return store.state.markedFlightData.raw;
     },
   },
 };
