@@ -1,7 +1,7 @@
 <template>
-  <div>
+  <div class="d-flex flex-column">
     <search-form></search-form>
-    <b-container class="col-lg-6 col-md-12" fluid="md">
+    <b-container class="container-fluid">
       <flight-component
         :key="element.itineraryId"
         v-for="element in currentPageItems"
@@ -14,6 +14,11 @@
         :agents="agents"
         :showMarkButton="isSignedIn"
       ></flight-component>
+      <!-- <b-spinner
+        v-if="isSearching"
+        variant="primary"
+        class="d-flex align-self-center"
+      ></b-spinner> -->
       <b-pagination
         v-if="showPaging"
         align="center"
@@ -48,6 +53,9 @@ export default {
   },
   created() {},
   computed: {
+    isSearching() {
+      return store.state.isSearching;
+    },
     itineraries() {
       return store.state.searchResultItineraries;
     },

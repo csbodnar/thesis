@@ -55,7 +55,7 @@ app.post("/login", async function (req, res) {
       );
       res.status(200).json({ token: token });
     } else {
-      res.status(400).json({ msg: "Password Incorrect" });
+      res.status(400).json({ msg: "Password is Incorrect" });
     }
   } else {
     res.status(404).json({ msg: "User does not exist" });

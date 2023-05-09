@@ -2,7 +2,6 @@ import Vue from "vue";
 import Vuex from "vuex";
 import axios from "axios";
 import router from "./router";
-import { i18n } from "./i18n";
 
 Vue.use(Vuex);
 
@@ -11,6 +10,7 @@ const store = new Vuex.Store({
   state: {
     market: "",
     locale: "en-GB",
+    language: "en-GB",
     currency: {
       code: "GBP",
       decimalDigits: 2,
@@ -31,7 +31,7 @@ const store = new Vuex.Store({
     isSignedIn: false,
     authToken: "",
     directFlightSearch: false,
-    isSearching: true,
+    isSearching: false,
     showingResults: false,
     loadingResults: false,
     searchSessionToken: "",
@@ -163,7 +163,7 @@ const store = new Vuex.Store({
           router.go(-1);
         })
         .catch((error) => {
-          console.log(error);
+          console.log(error.response.data.msg);
           return error.msg;
         });
     },
@@ -314,9 +314,9 @@ const store = new Vuex.Store({
           } else {
             context.state.market = response.data.market.code;
             context.state.locale = response.data.locale.code;
+            context.state.language = response.data.locale.code;
             context.state.currency = response.data.currency;
           }
-          i18n.locale = context.state.locale;
           return response;
         })
         .catch((error) => {

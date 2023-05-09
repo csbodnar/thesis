@@ -1,48 +1,32 @@
 <template>
-  <b-card class="d-flex justify-content-center mt-3">
-    <div class="flight-card">
-      <b-card-group
-        class="d-flex flex-row justify-content-center"
-        deck
-        v-if="isWideScreen"
-      >
-        <b-card
-          :title="this.fromObject.fromPlace.name"
-          class="flight-card__card"
-        >
-          <formatted-date
-            :dateObj="this.fromObject.departureDateTime"
-          ></formatted-date>
-        </b-card>
-        <b-card :title="this.toObject.toPlace.name" class="flight-card__card">
-          <formatted-date
-            :dateObj="this.toObject.arrivalDateTime"
-          ></formatted-date>
-        </b-card>
-      </b-card-group>
-
-      <div class="d-flex justify-content-center" v-else>
-        <b-card
-          :title="this.fromObject.fromPlace.name"
-          class="flight-card__card"
-        >
-          <formatted-date
-            :dateObj="this.fromObject.departureDateTime"
-          ></formatted-date>
-        </b-card>
-        <b-icon-arrow-right
-          class="align-self-center"
-          variant="primary"
-        ></b-icon-arrow-right>
-        <b-card :title="this.toObject.toPlace.name" class="flight-card__card">
-          <formatted-date
-            :dateObj="this.toObject.arrivalDateTime"
-          ></formatted-date>
-        </b-card>
+  <b-card>
+    <div>
+      <div class="row justify-content-center">
+        <div class="col-sm-12 col-md-5">
+          <b-card :title="this.fromObject.fromPlace.name">
+            <formatted-date
+              :dateObj="this.fromObject.departureDateTime"
+            ></formatted-date>
+          </b-card>
+        </div>
+        <div class="col-sm-12 col-md-1 d-block d-md-none">
+          <b-icon-arrow-down variant="primary"></b-icon-arrow-down>
+        </div>
+        <div class="col-sm-12 col-md-1 d-none d-md-block align-self-center">
+          <b-icon-arrow-right variant="primary"></b-icon-arrow-right>
+        </div>
+        <div class="col-sm-12 col-md-5">
+          <b-card :title="this.toObject.toPlace.name">
+            <formatted-date
+              :dateObj="this.toObject.arrivalDateTime"
+            ></formatted-date>
+          </b-card>
+        </div>
       </div>
 
-      <div class="flight-card__stop-count">
+      <div class="">
         <a
+          class="fw-bold"
           v-b-toggle
           :href="`#stops-info_${this.id.replace(',', ':')}`"
           @click.prevent
@@ -60,9 +44,9 @@
           </b-card>
         </b-collapse>
       </div>
-      <div class="flight-card__time-total">
-        <div class="flight-card__time-total__label">Total Time:</div>
-        <div class="flight-card__time-total__time">{{ this.travelTime }}</div>
+      <div class="d-flex flex-row justify-content-center">
+        <p class="fw-bold">Total Time:</p>
+        <p class="fw-bold">{{ this.travelTime }}</p>
       </div>
       <div v-if="!hasMoreOptions">
         <b-button
@@ -78,12 +62,17 @@
         >
         <b-collapse id="collapse-1" class="mt-2">
           <b-card
+            class="d-flex flex-row"
             v-for="option in Object.entries(pricingOptions)"
             :key="option[0]"
           >
-            <div v-for="agent in option.agents" :key="agent.name">
-              <img :src="agent.imageUrl" :alt="agent.name" />
-            </div>
+            <img
+              v-for="agent in option.agents"
+              :key="agent.name"
+              :src="agent.imageUrl"
+              :alt="agent.name"
+            />
+
             <b-button variant="primary" target="_blank" :href="option[1].link"
               >{{ option[1].price }}
             </b-button>
@@ -125,7 +114,7 @@
 import store from "./../store";
 import FormattedDate from "./FormattedDate.vue";
 import FlightDetails from "./FlightDetails.vue";
-import { BIconArrowRight } from "bootstrap-vue";
+import { BIconArrowDown, BIconArrowRight } from "bootstrap-vue";
 
 export default {
   name: "FlightComponent",
@@ -142,6 +131,7 @@ export default {
   components: {
     FormattedDate,
     FlightDetails,
+    BIconArrowDown,
     BIconArrowRight,
   },
   data() {
@@ -178,7 +168,7 @@ export default {
         agents,
       });
     });
-    console.log(this.pricingOptions);
+    // console.log(this.pricingOptions);
 
     const firstLeg = this.legs[this.itinerary.legIds[0]];
     const firstSegment = this.segments[firstLeg.segmentIds[0]];
@@ -223,7 +213,7 @@ export default {
       return store.state.currency;
     },
     isWideScreen() {
-      return window.innerWidth >= 992;
+      return window.innerWidth >= 800;
     },
     ownSegments() {
       let segments = [];
@@ -273,39 +263,9 @@ export default {
 };
 </script>
 <style scoped>
-.flight-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 30px;
-}
-
-.flight-card__card {
-  width: 100%;
-  max-width: 500px;
-  margin-right: 10px;
-}
-
-.flight-card__time {
-  font-size: 32px;
-  font-weight: bold;
-  text-align: center;
-}
-
-.flight-card__time-total {
-  font-size: 24px;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-}
-.flight-card__stop-count {
-  font-size: 24px;
-  font-weight: bold;
-  display: block;
-  align-items: center;
-}
-
-.flight-card__time-total__label {
-  margin-right: 20px;
+@media screen and (max-width: 600px) {
+  .small-widht {
+    background-color: lightblue;
+  }
 }
 </style>

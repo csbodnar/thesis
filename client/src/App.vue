@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="app" class="vh-100 w-100">
     <b-navbar toggleable="md" type="light" variant="info">
       <router-link to="/" custom v-slot="{ navigate }">
         <b-navbar-brand
@@ -27,26 +27,7 @@
       <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
       <b-collapse id="nav-collapse" is-nav>
         <!-- Right aligned nav items -->
-        <b-navbar-nav class="ml-5">
-          <b>
-            <b-nav-item-dropdown text="LANG" right>
-              <b-dropdown-item-button value="en-US" @click="changeLocale"
-                >English(US)</b-dropdown-item-button
-              >
-              <b-dropdown-item-button value="en-GB  " @click="changeLocale"
-                >English(GB)</b-dropdown-item-button
-              >
-              <b-dropdown-item-button value="hu-HU" @click="changeLocale"
-                >Magyar</b-dropdown-item-button
-              >
-              <b-dropdown-item-button value="fr-FR" @click="changeLocale"
-                >Français</b-dropdown-item-button
-              >
-              <b-dropdown-item-button value="de-DE" @click="changeLocale"
-                >Deutsch</b-dropdown-item-button
-              >
-            </b-nav-item-dropdown>
-          </b>
+        <b-navbar-nav class="ms-auto">
           <router-link
             v-if="!isSignedIn"
             to="/registry"
@@ -68,7 +49,7 @@
             <b-nav-item-dropdown right>
               <!-- Using 'button-content' slot -->
               <template #button-content>
-                <em>{{ $t("profile") }}</em>
+                <strong>{{ $t("profile") }}</strong>
               </template>
 
               <router-link to="/marked" custom v-slot="{ navigate }">
@@ -83,23 +64,37 @@
           </div>
           <div v-else>
             <router-link to="/login" custom v-slot="{ navigate }">
-              <b-nav-item
-                @click="navigate"
-                @keypress.enter="navigate"
-                role="button"
-              >
-                <b>
+              <strong>
+                <b-nav-item
+                  @click="navigate"
+                  @keypress.enter="navigate"
+                  role="button"
+                >
                   {{ $t("loginTab") }}
-                </b>
-              </b-nav-item>
+                </b-nav-item>
+              </strong>
             </router-link>
+          </div>
+          <div class="d-flex flex-row align-self-center mx-5">
+            <div class="h3 mb-0 align-self-center">
+              <b-icon-globe2></b-icon-globe2>
+            </div>
+            <b-nav-item-dropdown class="fw-bold" :text="language.display" left>
+              <b-dropdown-item-button
+                v-for="lang in this.languages"
+                :key="lang.locale"
+                :value="lang.locale"
+                @click="changeLocale"
+                >{{ lang.display }}</b-dropdown-item-button
+              >
+            </b-nav-item-dropdown>
           </div>
         </b-navbar-nav>
       </b-collapse>
     </b-navbar>
 
     <!-- Rest of your website content goes here -->
-    <router-view></router-view>
+    <router-view class="d-flex justify-content-center"></router-view>
   </div>
 </template>
 
@@ -107,14 +102,33 @@
 import { mapState, mapMutations } from "vuex";
 import store from "./store";
 import { i18n } from "./i18n";
+import { BIconGlobe2 } from "bootstrap-vue";
+
 export default {
   name: "App",
+  components: {
+    BIconGlobe2,
+  },
+  data() {
+    return {
+      languages: [
+        { locale: "en-US", display: "English(US)" },
+        { locale: "en-GB", display: "English(GB)" },
+        { locale: "hu-HU", display: "Magyar" },
+        { locale: "fr-FR", display: "Français" },
+        { locale: "de-DE", display: "Deutch" },
+      ],
+    };
+  },
   created() {
     store.dispatch("fetchCulture");
+    i18n.locale = store.state.language;
   },
-  components: {},
   computed: {
     ...mapState(["isSignedIn"]),
+    language() {
+      return this.languages.find((x) => x.locale == i18n.locale);
+    },
   },
 
   methods: {

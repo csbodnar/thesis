@@ -29,7 +29,7 @@
           id="from-input"
           :label="$t('fromLabel')"
           label-cols="12"
-          label-cols-lg="2"
+          label-cols-lg="3"
           label-for="from"
           class="d-flex flex-column flex-lg-row mt-2 align-to-start"
         >
@@ -61,7 +61,7 @@
         :label="$t('toLabel')"
         label-for="to"
         label-cols="12"
-        label-cols-lg="2"
+        label-cols-lg="3"
         class="d-flex flex-column flex-lg-row mt-2 align-to-start"
       >
         <b-form-input
@@ -90,7 +90,7 @@
         :label="$t('dateDepartLabel')"
         label-for="dateDepart"
         label-cols="12"
-        label-cols-lg="2"
+        label-cols-lg="3"
         class="mb-2 d-flex flex-column flex-lg-row mt-2 align-to-start"
       >
         <b-form-datepicker
@@ -107,7 +107,7 @@
         :label="$t('dateReturnLabel')"
         label-for="dateReturn"
         label-cols="12"
-        label-cols-lg="2"
+        label-cols-lg="3"
         class="d-flex flex-column flex-lg-row mt-2 align-to-start"
       >
         <b-form-datepicker
