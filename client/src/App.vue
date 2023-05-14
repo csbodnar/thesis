@@ -49,7 +49,7 @@
             <b-nav-item-dropdown right>
               <!-- Using 'button-content' slot -->
               <template #button-content>
-                <strong>{{ $t("profile") }}</strong>
+                <strong>{{ userName }}</strong>
               </template>
 
               <router-link to="/marked" custom v-slot="{ navigate }">
@@ -125,7 +125,7 @@ export default {
     i18n.locale = store.state.language;
   },
   computed: {
-    ...mapState(["isSignedIn"]),
+    ...mapState(["isSignedIn", "userName"]),
     language() {
       return this.languages.find((x) => x.locale == i18n.locale);
     },

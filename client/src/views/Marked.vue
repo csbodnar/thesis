@@ -10,6 +10,22 @@
     ></b-spinner>
 
     <div v-else class="w-100">
+      <b-card class="mb-2">
+        <div class="row justify-content-around">
+          <div class="col-12 col-sm-4 fw-bold align-self-center">
+            Price when You marked it:
+          </div>
+
+          <div class="col-6 col-sm-4">
+            <div
+              class="bg-warning text-dark rounded p-2 fw-bold align-self-center mx-auto w-75"
+            >
+              {{ this.priceWhenMarked }}
+            </div>
+          </div>
+        </div>
+      </b-card>
+
       <flight-component
         :itinerary="markedDetailed.itineraries[markedRaw.itineraryId]"
         :id="markedRaw.itineraryId"
@@ -34,16 +50,24 @@ export default {
   data() {
     return {
       loading: true,
+      priceWhenMarked: "",
     };
   },
   async created() {
-    if (this.markedDetailed != undefined) {
-      this.loading = false;
-    }
-    await store.dispatch("fetchMarkedFlightData").then(() => {
+    await store.dispatch("getMarkedFlightData").then(() => {
       this.loading = false;
     });
     console.log(this.markedDetailed);
+    store
+      .dispatch("getPriceWithFormat", {
+        price: {
+          unit: this.markedRaw.priceUnit,
+          amount: this.markedRaw.priceAmount,
+        },
+      })
+      .then((response) => {
+        this.priceWhenMarked = response;
+      });
   },
   computed: {
     markedDetailed() {

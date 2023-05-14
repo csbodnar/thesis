@@ -20,7 +20,8 @@ module.exports = (sequelize, DataTypes) => {
   Itinerary.init(
     {
       itineraryId: DataTypes.STRING,
-      pricingOptionId: DataTypes.STRING,
+      priceAmount: DataTypes.INTEGER,
+      priceUnit: DataTypes.STRING,
       originIATA: DataTypes.STRING,
       originEntityId: DataTypes.STRING,
       destinationIATA: DataTypes.STRING,

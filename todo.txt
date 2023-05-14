@@ -1,14 +1,13 @@
-styling(labels...) --labels done
-one-to-many between flight and user --done
 show marked using the checkUsersMarked() function at serverside
 delete flight from database if no user marked them
 mail user if it is reasonable 
     -scoring system to find out if it is reasonable
     -all pricing options instead first
 	-if isSearchng and there no results yet show some loading wheel
+	searching placers object ti store state
+	retrun flight working
 	css to folder
-	strong -> class="font-weight-bold" --done
-	cabin class to label default:economy --done
+	strong -> class="fw-bold" --done
 	test
 	remove search page --done
 	validation

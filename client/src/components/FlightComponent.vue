@@ -1,21 +1,21 @@
 <template>
-  <b-card>
+  <b-card v-if="isCreatedFinished">
     <div>
       <div class="row justify-content-center">
-        <div class="col-sm-12 col-md-5">
+        <div class="col-sm-12 col-md-5 align-self-stretch">
           <b-card :title="this.fromObject.fromPlace.name">
             <formatted-date
               :dateObj="this.fromObject.departureDateTime"
             ></formatted-date>
           </b-card>
         </div>
-        <div class="col-sm-12 col-md-1 d-block d-md-none">
+        <div class="h2 col-sm-12 col-md-2 d-block d-md-none">
           <b-icon-arrow-down variant="primary"></b-icon-arrow-down>
         </div>
-        <div class="col-sm-12 col-md-1 d-none d-md-block align-self-center">
+        <div class="h2 col-sm-12 col-md-2 d-none d-md-block align-self-center">
           <b-icon-arrow-right variant="primary"></b-icon-arrow-right>
         </div>
-        <div class="col-sm-12 col-md-5">
+        <div class="col-sm-12 col-md-5 align-self-stretch">
           <b-card :title="this.toObject.toPlace.name">
             <formatted-date
               :dateObj="this.toObject.arrivalDateTime"
@@ -28,11 +28,11 @@
         <a
           class="fw-bold"
           v-b-toggle
-          :href="`#stops-info_${this.id.replace(',', ':')}`"
+          :href="`#stops-info_${htmlId}`"
           @click.prevent
           >Stops: {{ this.stopCount }}</a
         >
-        <b-collapse :id="`stops-info_${this.id.replace(',', ':')}`">
+        <b-collapse :id="`stops-info_${htmlId}`">
           <b-card title="Details">
             <flight-details
               v-for="segment in Object.entries(ownSegments)"
@@ -48,7 +48,7 @@
         <p class="fw-bold">Total Time:</p>
         <p class="fw-bold">{{ this.travelTime }}</p>
       </div>
-      <div v-if="!hasMoreOptions">
+      <div v-if="!hasMoreOptions && pricingOptions[0]">
         <b-button
           variant="primary"
           target="_blank"
@@ -57,23 +57,32 @@
         </b-button>
       </div>
       <div v-else>
-        <b-button v-b-toggle.collapse-1 variant="primary">
-          From {{ this.pricingOptions[0].price }}</b-button
+        <b-button
+          v-if="pricingOptions[0]"
+          v-b-toggle="htmlId"
+          variant="primary"
         >
-        <b-collapse id="collapse-1" class="mt-2">
+          From {{ pricingOptions[0].price }}</b-button
+        >
+        <b-collapse :id="htmlId" class="mt-2">
           <b-card
             class="d-flex flex-row"
             v-for="option in Object.entries(pricingOptions)"
             :key="option[0]"
           >
             <img
-              v-for="agent in option.agents"
+              v-for="agent in option[1].agents"
+              class="mx-3"
               :key="agent.name"
               :src="agent.imageUrl"
               :alt="agent.name"
             />
 
-            <b-button variant="primary" target="_blank" :href="option[1].link"
+            <b-button
+              class="mx-3"
+              variant="primary"
+              target="_blank"
+              :href="option[1].link"
               >{{ option[1].price }}
             </b-button>
           </b-card>
@@ -136,6 +145,7 @@ export default {
   },
   data() {
     return {
+      isCreatedFinished: false,
       pricingOptions: [],
       fromObject: {},
       toObject: {},
@@ -144,32 +154,9 @@ export default {
       modalShow: false,
     };
   },
-  created() {
-    this.itinerary.pricingOptions.forEach((option) => {
-      let priceObj = option.price;
-      const unitMultiplier = store.state.priceMultiplier[priceObj.unit];
-      const amount = parseInt(priceObj.amount) / unitMultiplier;
-      const formatter = new Intl.NumberFormat(store.state.locale, {
-        style: "currency",
-        currency: this.currency.code,
-        currencyDisplay: "symbol",
-        minimumFractionDigits: this.currency.decimalDigits,
-        maximumFractionDigits: this.currency.decimalDigits,
-        useGrouping: true,
-        grouping: this.currency.thousandsSeparator,
-        decimalSeparator: this.currency.decimalSeparator,
-      });
-      let agents = option.agentIds.map((id) => {
-        return this.agents[id];
-      });
-      this.pricingOptions.push({
-        price: formatter.format(amount),
-        link: option.items[0].deepLink,
-        agents,
-      });
-    });
-    // console.log(this.pricingOptions);
-
+  async created() {
+    // console.log(this.pricingOptions, this.hasMoreOptions);
+    this.pricingOptions = await this.getPricingOptions();
     const firstLeg = this.legs[this.itinerary.legIds[0]];
     const firstSegment = this.segments[firstLeg.segmentIds[0]];
 
@@ -207,8 +194,21 @@ export default {
     });
     let hours = Math.floor(sumMinutes / 60);
     this.travelTime = `${hours}h ${sumMinutes - hours * 60}m`;
+
+    this.isCreatedFinished = true;
+  },
+  watch: {
+    hasMoreOptions: async function (newVal, oldVal) {
+      console.log(oldVal + " to " + newVal);
+      this.pricingOptions = await Promise.all(this.getPricingOptions);
+      console.log(this.pricingOptions[0]);
+    },
   },
   computed: {
+    htmlId() {
+      return this.id.replace(",", ":");
+    },
+
     currency() {
       return store.state.currency;
     },
@@ -243,7 +243,8 @@ export default {
       store
         .dispatch("setMarkedFlightData", {
           itineraryId: this.id,
-          pricingOptionId: this.itinerary.pricingOptions[0].id,
+          priceAmount: this.itinerary.pricingOptions[0].price.amount,
+          priceUnit: this.itinerary.pricingOptions[0].price.unit,
           originEntityId: this.fromObject.fromPlace.entityId,
           destinationEntityId: this.toObject.toPlace.entityId,
         })
@@ -258,6 +259,35 @@ export default {
     onOk() {
       this.$bvModal.hide(`mark-${this.id.replace(",", ":")}`);
       this.setMarkedForUser();
+    },
+    async getPricingOptions() {
+      let promises = await this.itinerary.pricingOptions.map(async (option) => {
+        let priceObj = option.price;
+        let agents = option.agentIds.map((id) => {
+          return this.agents[id];
+        });
+        await store
+          .dispatch("getPriceWithFormat", {
+            price: {
+              unit: priceObj.unit,
+              amount: priceObj.amount,
+            },
+          })
+          .then((response) => {
+            let price = response.includes("NaN") ? "unknown" : response;
+            let obj = {
+              price,
+              link: option.items[0].deepLink,
+              agents,
+            };
+            // console.log(obj);
+            // result.push(obj);
+            return obj;
+          });
+      });
+      // let results = await Promise.all(promises);
+      // console.log(results);
+      return promises;
     },
   },
 };

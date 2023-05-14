@@ -29,6 +29,7 @@ const store = new Vuex.Store({
     },
     placeSuggestions: [],
     isSignedIn: false,
+    userName: "",
     authToken: "",
     directFlightSearch: false,
     isSearching: false,
@@ -159,7 +160,8 @@ const store = new Vuex.Store({
         .then((response) => {
           context.state.authToken = response.data.token;
           context.state.isSignedIn = true;
-          context.dispatch("getMarkedFlightData");
+          context.state.userName = response.data.name;
+          // context.dispatch("getMarkedFlightData");
           router.go(-1);
         })
         .catch((error) => {
@@ -180,8 +182,8 @@ const store = new Vuex.Store({
         grouping: context.state.currency.thousandsSeparator,
         decimalSeparator: context.state.currency.decimalSeparator,
       });
-
-      return formatter.format(amount);
+      let price = formatter.format(amount);
+      return price.includes("NaN") ? "unknown" : price;
     },
     goBack() {
       router.go(-1);
@@ -331,10 +333,13 @@ const store = new Vuex.Store({
           headers: { Authorization: `Bearer ${context.state.authToken}` },
         })
         .then((response) => {
+          console.log(response.data);
           if (response.data.msg == "no watched") {
             context.state.markedFlightData.raw = undefined;
           } else {
-            context.state.markedFlightData.raw = response.data;
+            context.state.markedFlightData.raw = response.data.raw;
+            context.state.markedFlightData.detailed =
+              response.data.detailed.content.results;
           }
           return response.data;
         })
@@ -377,7 +382,6 @@ const store = new Vuex.Store({
             console.log(response.data.message);
           }
           if (response.data.action !== "RESULT_ACTION_OMITTED") {
-            console.log(response.data.sessionToken);
             await axios
               .post("http://localhost:5555/searchByItinerary", {
                 sessionToken: response.data.sessionToken,
@@ -402,13 +406,14 @@ const store = new Vuex.Store({
       let dateOfDepart = new Date(context.state.searchObject.dateDepart);
       let data = {
         itineraryId: payload.itineraryId,
-        pricingOptionId: payload.pricingOptionId,
+        priceAmount: payload.priceAmount,
+        priceUnit: payload.priceUnit,
         originIATA: payload.originIATA,
         originEntityId: payload.originEntityId,
         destinationIATA: payload.destinationIATA,
         destinationEntityId: payload.destinationEntityId,
         year: dateOfDepart.getFullYear(),
-        month: dateOfDepart.getMonth(),
+        month: dateOfDepart.getMonth() + 1,
         day: dateOfDepart.getDate(),
         currency: context.state.currency.code,
         market: context.state.market,

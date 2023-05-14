@@ -43,7 +43,7 @@ app.post("/register", async function (req, res) {
     { id: created_user.id, email: created_user.email, name: created_user.name },
     process.env.SECRET
   );
-  res.status(201).json({ token: token });
+  res.status(201).json({ token: token, name: user.name });
 });
 app.post("/login", async function (req, res) {
   const user = await User.findOne({ where: { email: req.body.email } });
@@ -53,7 +53,7 @@ app.post("/login", async function (req, res) {
         { id: user.id, email: user.email, name: user.name },
         process.env.SECRET
       );
-      res.status(200).json({ token: token });
+      res.status(200).json({ token: token, name: user.name });
     } else {
       res.status(400).json({ msg: "Password is Incorrect" });
     }
@@ -61,6 +61,21 @@ app.post("/login", async function (req, res) {
     res.status(404).json({ msg: "User does not exist" });
   }
 });
+// app.get("/getWatched", async function (req, res) {
+//   try {
+//     let token = req.headers["authorization"].split(" ")[1];
+//     let decoded = jwt.verify(token, process.env.SECRET);
+//     let user = await User.findByPk(decoded.id);
+//     if (user === null) {
+//       res.status(404).json({ msg: "User not found" });
+//     }
+//     let itinerary = await user.getItinerary();
+//     res.status(200).json(itinerary ? itinerary : { msg: "no watched" });
+//   } catch (err) {
+//     console.log(err.message);
+//     res.status(401).json({ msg: "Couldn't Authenticate", error: err.message });
+//   }
+// });
 app.get("/getWatched", async function (req, res) {
   try {
     let token = req.headers["authorization"].split(" ")[1];
@@ -70,12 +85,49 @@ app.get("/getWatched", async function (req, res) {
       res.status(404).json({ msg: "User not found" });
     }
     let itinerary = await user.getItinerary();
-    res.status(200).json(itinerary ? itinerary : { msg: "no watched" });
+    if (itinerary == null || itinerary == undefined) {
+      res.status(200).json({ msg: "no watched" });
+    }
+    let searchResult = await search({
+      query: {
+        market: itinerary.market,
+        locale: itinerary.locale,
+        currency: itinerary.currency,
+        queryLegs: [
+          {
+            originPlaceId: {
+              entityId: itinerary.originEntityId,
+            },
+            destinationPlaceId: {
+              entityId: itinerary.destinationEntityId,
+            },
+            date: {
+              year: itinerary.year,
+              month: itinerary.month,
+              day: itinerary.day,
+            },
+          },
+        ],
+        cabinClass: itinerary.cabinClass,
+        adults: itinerary.adults,
+      },
+    });
+    if (searchResult.status == 400) console.log(searchResult.error);
+    if (searchResult.action == "RESULT_ACTION_OMITTED")
+      console.log("RESULT_ACTION_OMITTED");
+    let refreshCreateResult = await searchByItinerary(
+      searchResult.sessionToken,
+      itinerary.itineraryId
+    );
+
+    res.send({ detailed: refreshCreateResult, raw: itinerary });
+    // res.status(200).json(itinerary ? itinerary : { msg: "no watched" });
   } catch (err) {
     console.log(err.message);
     res.status(401).json({ msg: "Couldn't Authenticate", error: err.message });
   }
 });
+
 app.post("/setWatched", async function (req, res) {
   console.log(req.body);
   try {
@@ -90,7 +142,6 @@ app.post("/setWatched", async function (req, res) {
     const [itinerary, created] = await Itinerary.findOrCreate({
       where: {
         itineraryId: req.body.itineraryId,
-        pricingOptionId: req.body.pricingOptionId,
         year: req.body.year,
         month: req.body.month,
         day: req.body.day,
@@ -101,7 +152,8 @@ app.post("/setWatched", async function (req, res) {
       },
       defaults: {
         itineraryId: req.body.itineraryId,
-        pricingOptionId: req.body.pricingOptionId,
+        priceAmount: req.body.priceAmount,
+        priceUnit: req.body.priceUnit,
         originIATA: req.body.originIATA ? req.body.originIATA : null,
         originEntityId: req.body.originEntityId
           ? req.body.originEntityId
@@ -177,43 +229,8 @@ app.get("/fetchMarkets", async function (req, res) {
   res.send(resData);
 });
 app.post("/search", async function (req, res) {
-  let resp;
-  let returnCondition = false;
-  let status = 200;
-  console.log(req.body);
-  do {
-    await axios
-      .request({
-        method: "POST",
-        url: "https://partners.api.skyscanner.net/apiservices/v3/flights/live/search/create",
-        headers: HEADERS,
-        data: req.body,
-      })
-      .then(function (response) {
-        console.log(response.status, response.data.action);
-        if (
-          (response.status == 200 &&
-            response.data.status !== "RESULT_STATUS_FAILED") ||
-          response.data.action == "RESULT_ACTION_OMITTED"
-        ) {
-          sessionToken = response.data.sessionToken;
-          resp = response.data;
-          returnCondition = true;
-          status = 200;
-        }
-      })
-      .catch(function (error) {
-        console.log(error.response ? error.response.status : error.data);
-        // console.log(error.response, error.response.status);
-        if (error.response && error.response.status == 400) {
-          console.log(error.response.data.message);
-          resp = { error: error.response.data.message };
-          returnCondition = true;
-          status = 400;
-        }
-      });
-  } while (!returnCondition);
-  res.status(status).send(resp);
+  let resp = await search(req.body);
+  res.send(resp);
 });
 
 app.post("/searchRefresh", async function (req, res) {
@@ -322,6 +339,104 @@ async function checkEveryUsersWatched() {
     let itinerary = await user.getItinerary();
     console.log(itinerary);
   });
+}
+async function search(queryDataObj) {
+  let resp;
+  let returnCondition = false;
+  let status = 200;
+  do {
+    await axios
+      .request({
+        method: "POST",
+        url: "https://partners.api.skyscanner.net/apiservices/v3/flights/live/search/create",
+        headers: HEADERS,
+        data: queryDataObj,
+      })
+      .then(function (response) {
+        console.log(response.status, response.data.action);
+        if (
+          (response.status == 200 &&
+            response.data.status !== "RESULT_STATUS_FAILED") ||
+          response.data.action == "RESULT_ACTION_OMITTED"
+        ) {
+          sessionToken = response.data.sessionToken;
+          resp = response.data;
+          returnCondition = true;
+          status = 200;
+        }
+      })
+      .catch(function (error) {
+        console.log(error.response ? error.response.status : error.data);
+        // console.log(error.response, error.response.status);
+        if (error.response && error.response.status == 400) {
+          console.log(error.response.data.message);
+          resp = { error: error.response.data.message };
+          returnCondition = true;
+          status = 400;
+        }
+      });
+  } while (!returnCondition);
+  resp.status = status;
+  return resp;
+}
+async function searchByItinerary(token, itineraryId) {
+  let resp;
+  let returnCondition = false;
+  let status = 200;
+  do {
+    await axios
+      .request({
+        method: "POST",
+        url: `https://partners.api.skyscanner.net/apiservices/v3/flights/live/itineraryrefresh/create/${token}`,
+        headers: HEADERS,
+        data: {
+          itineraryId,
+        },
+      })
+      .then(function (response) {
+        if (
+          (response.status == 200 &&
+            response.data.status !== "RESULT_STATUS_FAILED") ||
+          response.data.action == "RESULT_ACTION_OMITTED"
+        ) {
+          sessionToken = response.data.sessionToken;
+          resp = response.data;
+          returnCondition = true;
+          status = 200;
+        }
+      })
+      .catch(function (error) {
+        console.log(error.response ? error.response.status : error.data);
+        if (error.response && error.response.status == 400) {
+          console.log(error.response.data.message);
+          resp = { error: error.response.data.message };
+          returnCondition = true;
+          status = 400;
+        }
+      });
+  } while (!returnCondition);
+  resp.status = status;
+  return resp;
+}
+async function refreshItneraryPoll(refreshSessionToken) {
+  console.log(refreshSessionToken);
+
+  await axios
+    .request({
+      method: "GET",
+      url: `https://partners.api.skyscanner.net/apiservices/v3/flights/live/itineraryrefresh/poll/${refreshSessionToken}`,
+      headers: HEADERS,
+    })
+    .then(function (response) {
+      console.log(response);
+
+      resData = response.data;
+    })
+    .catch(function (error) {
+      console.log(error.message);
+      resData = error;
+    });
+  return resData;
 }
 
 const server = app.listen(port ? port : 5555, () => {

@@ -229,6 +229,9 @@ export default {
     this.to.search = this.suggestionStringify(
       store.state.searchObject.destinationPlaceObject
     );
+    this.from.object = store.state.searchObject.originPlaceObject;
+
+    this.to.object = store.state.searchObject.destinationPlaceObject;
   },
   computed: {
     isReturn() {
