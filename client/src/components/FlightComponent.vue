@@ -156,7 +156,8 @@ export default {
   },
   async created() {
     // console.log(this.pricingOptions, this.hasMoreOptions);
-    this.pricingOptions = await this.getPricingOptions();
+    this.pricingOptions = this.getPricingOptions();
+
     const firstLeg = this.legs[this.itinerary.legIds[0]];
     const firstSegment = this.segments[firstLeg.segmentIds[0]];
 
@@ -200,7 +201,7 @@ export default {
   watch: {
     hasMoreOptions: async function (newVal, oldVal) {
       console.log(oldVal + " to " + newVal);
-      this.pricingOptions = await Promise.all(this.getPricingOptions);
+      this.pricingOptions = this.getPricingOptions();
       console.log(this.pricingOptions[0]);
     },
   },
@@ -260,34 +261,31 @@ export default {
       this.$bvModal.hide(`mark-${this.id.replace(",", ":")}`);
       this.setMarkedForUser();
     },
-    async getPricingOptions() {
-      let promises = await this.itinerary.pricingOptions.map(async (option) => {
+    getPricingOptions() {
+      return this.itinerary.pricingOptions.map((option) => {
         let priceObj = option.price;
+        const unitMultiplier = store.state.priceMultiplier[priceObj.unit];
+        const amount = parseInt(priceObj.amount) / unitMultiplier;
+        const formatter = new Intl.NumberFormat(store.state.locale, {
+          style: "currency",
+          currency: this.currency.code,
+          currencyDisplay: "symbol",
+          minimumFractionDigits: this.currency.decimalDigits,
+          maximumFractionDigits: this.currency.decimalDigits,
+          useGrouping: true,
+          grouping: this.currency.thousandsSeparator,
+          decimalSeparator: this.currency.decimalSeparator,
+        });
         let agents = option.agentIds.map((id) => {
           return this.agents[id];
         });
-        await store
-          .dispatch("getPriceWithFormat", {
-            price: {
-              unit: priceObj.unit,
-              amount: priceObj.amount,
-            },
-          })
-          .then((response) => {
-            let price = response.includes("NaN") ? "unknown" : response;
-            let obj = {
-              price,
-              link: option.items[0].deepLink,
-              agents,
-            };
-            // console.log(obj);
-            // result.push(obj);
-            return obj;
-          });
+        let price = formatter.format(amount);
+        return {
+          price: price.includes("NaN") ? "unknown" : price,
+          link: option.items[0].deepLink,
+          agents,
+        };
       });
-      // let results = await Promise.all(promises);
-      // console.log(results);
-      return promises;
     },
   },
 };
