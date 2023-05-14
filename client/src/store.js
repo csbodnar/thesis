@@ -207,9 +207,8 @@ const store = new Vuex.Store({
           console.log(response.data.status, response.data.action);
 
           if (response.data.status == 400) {
-            return Promise.reject(new Error(response.data.message));
-          }
-          if (response.data.action !== "RESULT_ACTION_OMITTED") {
+            return Promise.reject(new Error(response.data.error));
+          } else if (response.data.action !== "RESULT_ACTION_OMITTED") {
             context.state.searchSessionToken = response.data.sessionToken;
             context.state.sortingOptions = response.data.content.sortingOptions;
             context.state.searchResultItineraries =
@@ -227,7 +226,6 @@ const store = new Vuex.Store({
               response.data.content.results.alliances;
             context.state.showingResults = true;
             context.state.loadingResults = false;
-            return true;
           } else {
             //todo: error date from past
           }

@@ -9,10 +9,10 @@
             ></formatted-date>
           </b-card>
         </div>
-        <div class="h2 col-sm-12 col-md-2 d-block d-md-none">
+        <div class="h2 col-sm-12 col-md-1 d-block d-md-none">
           <b-icon-arrow-down variant="primary"></b-icon-arrow-down>
         </div>
-        <div class="h2 col-sm-12 col-md-2 d-none d-md-block align-self-center">
+        <div class="h2 col-sm-12 col-md-1 d-none d-md-block align-self-center">
           <b-icon-arrow-right variant="primary"></b-icon-arrow-right>
         </div>
         <div class="col-sm-12 col-md-5 align-self-stretch">

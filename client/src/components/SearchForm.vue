@@ -303,18 +303,18 @@ export default {
       //   //todo: do somethin
       // }
       let originPlaceId = {};
-      if (this.from.object.iata) {
-        originPlaceId.iata = this.from.object.iata;
+      if (this.from.object.iataCode) {
+        originPlaceId.iata = this.from.object.iataCode;
       } else {
         originPlaceId.entityId = this.from.object.entityId;
       }
       let destinationPlaceId = {};
-      if (this.to.object.iata) {
-        destinationPlaceId.iata = this.to.object.iata;
+      if (this.to.object.iataCode) {
+        destinationPlaceId.iata = this.to.object.iataCode;
       } else {
         destinationPlaceId.entityId = this.to.object.entityId;
       }
-      console.log(this.from.object, this.to.object);
+      console.log(originPlaceId, destinationPlaceId);
       await store
         .dispatch("search", {
           query: {
@@ -343,6 +343,7 @@ export default {
       const selectedSuggestion = this.placeSuggestions.find(
         (suggestion) => this.suggestionStringify(suggestion) === text
       );
+      console.log(selectedSuggestion);
       if (selectedSuggestion) {
         this.from.object = selectedSuggestion;
       }

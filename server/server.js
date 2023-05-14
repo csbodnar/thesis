@@ -26,10 +26,15 @@ const httpsAgent = new https.Agent({
   rejectUnauthorized: false,
 });
 
-axios.defaults.httpsAgent = httpsAgent;
+const priceMultiplier = {
+  PRICE_UNIT_UNSPECIFIED: 1,
+  PRICE_UNIT_WHOLE: 1,
+  PRICE_UNIT_CENTI: 100,
+  PRICE_UNIT_MILLI: 1000,
+  PRICE_UNIT_MICRO: 1000000,
+};
 
-let sessionToken = "";
-let refreshToken = "";
+axios.defaults.httpsAgent = httpsAgent;
 
 const sequelize = new Sequelize({
   dialect: "sqlite",
@@ -121,7 +126,6 @@ app.get("/getWatched", async function (req, res) {
     );
 
     res.send({ detailed: refreshCreateResult, raw: itinerary });
-    // res.status(200).json(itinerary ? itinerary : { msg: "no watched" });
   } catch (err) {
     console.log(err.message);
     res.status(401).json({ msg: "Couldn't Authenticate", error: err.message });
@@ -337,7 +341,56 @@ async function checkEveryUsersWatched() {
   const users = await User.findAll();
   users.forEach(async (user) => {
     let itinerary = await user.getItinerary();
-    console.log(itinerary);
+    if (itinerary == null || itinerary == undefined) {
+      return;
+    }
+    let searchResult = await search({
+      query: {
+        market: itinerary.market,
+        locale: itinerary.locale,
+        currency: itinerary.currency,
+        queryLegs: [
+          {
+            originPlaceId: {
+              entityId: itinerary.originEntityId,
+            },
+            destinationPlaceId: {
+              entityId: itinerary.destinationEntityId,
+            },
+            date: {
+              year: itinerary.year,
+              month: itinerary.month,
+              day: itinerary.day,
+            },
+          },
+        ],
+        cabinClass: itinerary.cabinClass,
+        adults: itinerary.adults,
+      },
+    });
+    if (searchResult.status == 400) console.log(searchResult.error);
+    if (searchResult.action == "RESULT_ACTION_OMITTED")
+      console.log("RESULT_ACTION_OMITTED");
+    let refreshCreateResult = await searchByItinerary(
+      searchResult.sessionToken,
+      itinerary.itineraryId
+    );
+    freshCheapestPriceObj =
+      refreshCreateResult.content.results.itineraries[itinerary.itineraryId]
+        .pricingOptions[0].price;
+    const freshAmount =
+      parseInt(freshCheapestPriceObj.amount) /
+      priceMultiplier[freshCheapestPriceObj.unit];
+    const oldAmount =
+      parseInt(itinerary.priceAmount) / priceMultiplier[itinerary.priceUnit];
+    const formatter = new Intl.NumberFormat(itinerary.locale, {
+      style: "currency",
+      currency: itinerary.currency,
+      currencyDisplay: "symbol",
+      maximumFractionDigits: 2,
+    });
+    let priceWithFormat = formatter.format(freshAmount);
+    console.log(oldAmount + "->" + freshAmount);
   });
 }
 async function search(queryDataObj) {
@@ -367,7 +420,6 @@ async function search(queryDataObj) {
       })
       .catch(function (error) {
         console.log(error.response ? error.response.status : error.data);
-        // console.log(error.response, error.response.status);
         if (error.response && error.response.status == 400) {
           console.log(error.response.data.message);
           resp = { error: error.response.data.message };
@@ -441,6 +493,6 @@ async function refreshItneraryPoll(refreshSessionToken) {
 
 const server = app.listen(port ? port : 5555, () => {
   console.log(`Server listening on the port::${server.address().port}`);
-  // checkEveryUsersWatched();
-  // setInterval(checkEveryUsersWatched, 30 * 1000); //60 * 60 * 1000 = 1 hour
+  checkEveryUsersWatched();
+  setInterval(checkEveryUsersWatched, 30 * 1000); //60 * 60 * 1000 = 1 hour
 });

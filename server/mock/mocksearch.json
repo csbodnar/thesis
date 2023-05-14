@@ -6,12 +6,11 @@
     "queryLegs": [
       {
         "originPlaceId": { "iata": "LHR" },
-        "destinationPlaceId": { "iata": "DXB" },
+        "destinationPlaceId": { "iata": "BRI" },
         "date": { "year": 2023, "month": 9, "day": 20 }
       }
     ],
     "cabinClass": "CABIN_CLASS_ECONOMY",
-    "adults": 2,
-    "childrenAges": [3, 9]
+    "adults": 1
   }
 }
