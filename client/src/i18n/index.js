@@ -34,6 +34,10 @@ const messages = {
     buisnessClass: "Buisness",
     firstClass: "First Class",
     back: "Back",
+    EMAIL_ALREADY_IN_USE_ERROR: "This e-mail is already in use.",
+    UNMATCHABLE_PASSWORDS_ERROR: "The two given passwords don't match.",
+    USER_NOT_EXISTS_ERROR: "User does not exist.",
+    INCORRECT_PASSWORD_ERROR: "Incorrect password.",
   },
   "en-GB": {
     loginTab: "Log in",
@@ -65,6 +69,10 @@ const messages = {
     buisnessClass: "Buisness",
     firstClass: "First Class",
     back: "Back",
+    EMAIL_ALREADY_IN_USE_ERROR: "This e-mail is already in use.",
+    UNMATCHABLE_PASSWORDS_ERROR: "The two given passwords don't match.",
+    USER_NOT_EXISTS_ERROR: "User does not exist.",
+    INCORRECT_PASSWORD_ERROR: "Incorrect password.",
   },
   "fr-FR": {
     loginTab: "Se connecter",
@@ -96,6 +104,10 @@ const messages = {
     buisnessClass: "Affaires",
     firstClass: "Première classe",
     back: "Retour",
+    EMAIL_ALREADY_IN_USE_ERROR: "This e-mail is already in use.",
+    UNMATCHABLE_PASSWORDS_ERROR: "The two given passwords don't match.",
+    USER_NOT_EXISTS_ERROR: "User does not exist.",
+    INCORRECT_PASSWORD_ERROR: "Incorrect password.",
   },
   "hu-HU": {
     loginTab: "Bejelentkezés",
@@ -127,6 +139,10 @@ const messages = {
     buisnessClass: "Buisness",
     firstClass: "Első Osztály",
     back: "Vissza",
+    EMAIL_ALREADY_IN_USE_ERROR: "This e-mail is already in use.",
+    UNMATCHABLE_PASSWORDS_ERROR: "The two given passwords don't match.",
+    USER_NOT_EXISTS_ERROR: "User does not exist.",
+    INCORRECT_PASSWORD_ERROR: "Incorrect password.",
   },
   "de-DE": {
     loginTab: "Anmelden",
@@ -158,6 +174,10 @@ const messages = {
     buisnessClass: "Business",
     firstClass: "First Class",
     back: "Zurück",
+    EMAIL_ALREADY_IN_USE_ERROR: "This e-mail is already in use.",
+    UNMATCHABLE_PASSWORDS_ERROR: "The two given passwords don't match.",
+    USER_NOT_EXISTS_ERROR: "User does not exist.",
+    INCORRECT_PASSWORD_ERROR: "Incorrect password.",
   },
   // add more languages as needed
 };

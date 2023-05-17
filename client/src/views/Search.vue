@@ -14,11 +14,11 @@
         :agents="agents"
         :showMarkButton="isSignedIn"
       ></flight-component>
-      <!-- <b-spinner
+      <b-spinner
         v-if="isSearching"
         variant="primary"
         class="d-flex align-self-center"
-      ></b-spinner> -->
+      ></b-spinner>
       <b-pagination
         v-if="showPaging"
         align="center"

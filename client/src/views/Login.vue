@@ -45,6 +45,15 @@
         }}</b-button>
       </div>
     </b-form>
+    <b-modal ref="loginModal" header-bg-variant="danger" hide-footer>
+      <template #modal-title> Error! </template>
+      <div class="d-block text-center">
+        <h5 v-if="errorCode !== null">{{ $t(`${errorCode}`) }}</h5>
+      </div>
+      <div class="mt-3 modal-footer d-flex justify-content-center">
+        <b-button class="mt-1" block @click="hideModal">Ok</b-button>
+      </div>
+    </b-modal>
   </b-container>
 </template>
 <script>
@@ -57,6 +66,12 @@ export default {
       password: "",
     };
   },
+  mounted() {
+    store.commit("setLoginModal", { ref: this.$refs.loginModal });
+  },
+  beforeDestroy() {
+    store.commit("setLoginModal", { ref: null });
+  },
   methods: {
     login() {
       store.dispatch("login", {
@@ -66,6 +81,14 @@ export default {
     },
     goBack() {
       store.dispatch("goBack");
+    },
+    hideModal() {
+      this.$refs.loginModal.hide();
+    },
+  },
+  computed: {
+    errorCode() {
+      return store.state.loginModal.error;
     },
   },
 };

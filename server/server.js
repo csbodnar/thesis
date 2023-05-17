@@ -42,13 +42,17 @@ const sequelize = new Sequelize({
 });
 
 app.post("/register", async function (req, res) {
-  //TODO: validate unique email
+  const user = await User.findOne({ where: { email: req.body.email } });
+  if(user) {
+    res.status(400).send({ error: "EMAIL_ALREADY_IN_USE_ERROR"});
+    return;
+  }
   created_user = await User.create(req.body);
   let token = jwt.sign(
     { id: created_user.id, email: created_user.email, name: created_user.name },
     process.env.SECRET
   );
-  res.status(201).json({ token: token, name: user.name });
+  res.status(201).send({ token: token, name: created_user.name });
 });
 app.post("/login", async function (req, res) {
   const user = await User.findOne({ where: { email: req.body.email } });
@@ -58,12 +62,12 @@ app.post("/login", async function (req, res) {
         { id: user.id, email: user.email, name: user.name },
         process.env.SECRET
       );
-      res.status(200).json({ token: token, name: user.name });
+      res.status(200).send({ token: token, name: user.name });
     } else {
-      res.status(400).json({ msg: "Password is Incorrect" });
+      res.status(400).send({ error: "INCORRECT_PASSWORD_ERROR" });
     }
   } else {
-    res.status(404).json({ msg: "User does not exist" });
+    res.status(404).send({ error: "USER_NOT_EXISTS_ERROR" });
   }
 });
 // app.get("/getWatched", async function (req, res) {
@@ -158,6 +162,8 @@ app.post("/setWatched", async function (req, res) {
         itineraryId: req.body.itineraryId,
         priceAmount: req.body.priceAmount,
         priceUnit: req.body.priceUnit,
+        lastCheckPriceAmount: req.body.priceAmount,
+        lastCheckPriceUnit: req.body.priceUnit,
         originIATA: req.body.originIATA ? req.body.originIATA : null,
         originEntityId: req.body.originEntityId
           ? req.body.originEntityId
@@ -179,7 +185,7 @@ app.post("/setWatched", async function (req, res) {
     });
     console.log(itinerary);
     await user.setItinerary(itinerary);
-    res.status(200).json({ msg: `succes`, itinerary: itinerary });
+    res.status(200).json({ msg: `success`, itinerary: itinerary });
   } catch (err) {
     console.log(err.message);
     res.json({ msg: err.message });
@@ -233,6 +239,7 @@ app.get("/fetchMarkets", async function (req, res) {
   res.send(resData);
 });
 app.post("/search", async function (req, res) {
+  console.log(req.body.query.queryLegs);
   let resp = await search(req.body);
   res.send(resp);
 });
@@ -337,61 +344,67 @@ app.post("/refreshByItinerary", async function (req, res) {
 });
 
 async function checkEveryUsersWatched() {
-  console.log("check");
-  const users = await User.findAll();
-  users.forEach(async (user) => {
-    let itinerary = await user.getItinerary();
-    if (itinerary == null || itinerary == undefined) {
-      return;
-    }
-    let searchResult = await search({
-      query: {
-        market: itinerary.market,
-        locale: itinerary.locale,
+  try {
+    console.log("check");
+    const users = await User.findAll();
+    users.forEach(async (user) => {
+      let itinerary = await user.getItinerary();
+      if (itinerary == null || itinerary == undefined) {
+        return;
+      }
+      let searchResult = await search({
+        query: {
+          market: itinerary.market,
+          locale: itinerary.locale,
+          currency: itinerary.currency,
+          queryLegs: [
+            {
+              originPlaceId: {
+                entityId: itinerary.originEntityId,
+              },
+              destinationPlaceId: {
+                entityId: itinerary.destinationEntityId,
+              },
+              date: {
+                year: itinerary.year,
+                month: itinerary.month,
+                day: itinerary.day,
+              },
+            },
+          ],
+          cabinClass: itinerary.cabinClass,
+          adults: itinerary.adults,
+        },
+      });
+      if (searchResult.status == 400) console.log(searchResult.error);
+      if (searchResult.action == "RESULT_ACTION_OMITTED")
+        console.log("RESULT_ACTION_OMITTED");
+      let refreshCreateResult = await searchByItinerary(
+        searchResult.sessionToken,
+        itinerary.itineraryId
+      );
+      freshCheapestPriceObj =
+        refreshCreateResult.content.results.itineraries[itinerary.itineraryId]
+          .pricingOptions[0].price;
+      const freshAmount =
+        parseInt(freshCheapestPriceObj.amount) /
+        priceMultiplier[freshCheapestPriceObj.unit];
+      const oldAmount =
+        parseInt(itinerary.priceAmount) / priceMultiplier[itinerary.priceUnit];
+      const lastCheckedAmount =
+        parseInt(itinerary.lastCheckPriceAmount) / priceMultiplier[itinerary.lastCheckPriceUnit];
+      const formatter = new Intl.NumberFormat(itinerary.locale, {
+        style: "currency",
         currency: itinerary.currency,
-        queryLegs: [
-          {
-            originPlaceId: {
-              entityId: itinerary.originEntityId,
-            },
-            destinationPlaceId: {
-              entityId: itinerary.destinationEntityId,
-            },
-            date: {
-              year: itinerary.year,
-              month: itinerary.month,
-              day: itinerary.day,
-            },
-          },
-        ],
-        cabinClass: itinerary.cabinClass,
-        adults: itinerary.adults,
-      },
+        currencyDisplay: "symbol",
+        maximumFractionDigits: 2,
+      });
+      let priceWithFormat = formatter.format(freshAmount);
+      console.log("when marked: " + oldAmount + ", lasttime checked: " + lastCheckedAmount + "->" + freshAmount);
     });
-    if (searchResult.status == 400) console.log(searchResult.error);
-    if (searchResult.action == "RESULT_ACTION_OMITTED")
-      console.log("RESULT_ACTION_OMITTED");
-    let refreshCreateResult = await searchByItinerary(
-      searchResult.sessionToken,
-      itinerary.itineraryId
-    );
-    freshCheapestPriceObj =
-      refreshCreateResult.content.results.itineraries[itinerary.itineraryId]
-        .pricingOptions[0].price;
-    const freshAmount =
-      parseInt(freshCheapestPriceObj.amount) /
-      priceMultiplier[freshCheapestPriceObj.unit];
-    const oldAmount =
-      parseInt(itinerary.priceAmount) / priceMultiplier[itinerary.priceUnit];
-    const formatter = new Intl.NumberFormat(itinerary.locale, {
-      style: "currency",
-      currency: itinerary.currency,
-      currencyDisplay: "symbol",
-      maximumFractionDigits: 2,
-    });
-    let priceWithFormat = formatter.format(freshAmount);
-    console.log(oldAmount + "->" + freshAmount);
-  });
+  } catch (error) {
+    console.log(error);
+  }
 }
 async function search(queryDataObj) {
   let resp;

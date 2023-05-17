@@ -80,6 +80,15 @@
         }}</b-button>
       </div>
     </b-form>
+    <b-modal ref="registryModal" header-bg-variant="danger" hide-footer>
+      <template #modal-title> Error! </template>
+      <div class="d-block text-center">
+        <h5 v-if="errorCode !== null">{{ $t(`${errorCode}`) }}</h5>
+      </div>
+      <div class="mt-3 modal-footer d-flex justify-content-center">
+        <b-button class="mt-1" block @click="hideModal">Ok</b-button>
+      </div>
+    </b-modal>
   </b-container>
 </template>
 <script>
@@ -94,20 +103,36 @@ export default {
       passwordAgain: "",
     };
   },
+  mounted() {
+    store.commit("setRegistryModal", { ref: this.$refs.registryModal });
+  },
+  beforeDestroy() {
+    store.commit("setRegistryModal", { ref: null });
+  },
   methods: {
     register() {
       if (this.password === this.passwordAgain) {
-        store.commit("register", {
+        store.dispatch("register", {
           name: this.name,
           email: this.email,
           password: this.password,
         });
       } else {
-        // todo error
+        store.state.registryModal.error = "UNMATCHABLE_PASSWORDS_ERROR";
+        this.$refs.registryModal.show();
+        this.passwordAgain = "";
       }
     },
     goBack() {
       store.dispatch("goBack");
+    },
+    hideModal() {
+      this.$refs.registryModal.hide();
+    },
+  },
+  computed: {
+    errorCode() {
+      return store.state.registryModal.error;
     },
   },
 };

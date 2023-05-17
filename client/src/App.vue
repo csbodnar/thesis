@@ -116,7 +116,7 @@ export default {
         { locale: "en-GB", display: "English(GB)" },
         { locale: "hu-HU", display: "Magyar" },
         { locale: "fr-FR", display: "Français" },
-        { locale: "de-DE", display: "Deutch" },
+        { locale: "de-DE", display: "Deutsch" },
       ],
     };
   },

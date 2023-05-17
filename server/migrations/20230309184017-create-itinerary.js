@@ -21,6 +21,14 @@ module.exports = {
         allowNull: false,
         type: Sequelize.STRING,
       },
+      lastCheckPriceAmount: {
+        allowNull: true,
+        type: Sequelize.INTEGER,
+      },
+      lastCheckPriceUnit: {
+        allowNull: true,
+        type: Sequelize.STRING,
+      },
       originIATA: {
         allowNull: true,
         type: Sequelize.STRING,

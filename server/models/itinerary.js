@@ -22,6 +22,8 @@ module.exports = (sequelize, DataTypes) => {
       itineraryId: DataTypes.STRING,
       priceAmount: DataTypes.INTEGER,
       priceUnit: DataTypes.STRING,
+      lastCheckPriceAmount: DataTypes.INTEGER,
+      lastCheckPriceUnit: DataTypes.STRING,
       originIATA: DataTypes.STRING,
       originEntityId: DataTypes.STRING,
       destinationIATA: DataTypes.STRING,

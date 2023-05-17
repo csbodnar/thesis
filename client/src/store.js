@@ -60,6 +60,14 @@ const store = new Vuex.Store({
       detailed: undefined,
       raw: undefined,
     },
+    registryModal: {
+      ref: null,
+      error: null,
+    },
+    loginModal: {
+      ref: null,
+      error: null,
+    },
   },
   getters: {
     getSearchObject(state) {
@@ -132,22 +140,11 @@ const store = new Vuex.Store({
           return error.msg;
         });
     },
-    register(state, payload) {
-      axios
-        .post("http://localhost:5555/register", {
-          name: payload.name,
-          email: payload.email,
-          password: payload.password,
-        })
-        .then((response) => {
-          state.authToken = response.data.token;
-          state.isSignedIn = true;
-          router.push("/");
-        })
-        .catch((error) => {
-          console.log(error);
-          return error.data;
-        });
+    setRegistryModal(state, payload) {
+      state.registryModal.ref = payload.ref;
+    },
+    setLoginModal(state, payload) {
+      state.loginModal.ref = payload.ref;
     },
   },
   actions: {
@@ -165,8 +162,26 @@ const store = new Vuex.Store({
           router.go(-1);
         })
         .catch((error) => {
-          console.log(error.response.data.msg);
-          return error.msg;
+          context.state.loginModal.error = error.response.data.error;
+          context.state.loginModal.ref.show();
+        });
+    },
+    register(context, payload) {
+      axios
+        .post("http://localhost:5555/register", {
+          name: payload.name,
+          email: payload.email,
+          password: payload.password,
+        })
+        .then((response) => {
+          context.state.authToken = response.data.token;
+          context.state.isSignedIn = true;
+          context.state.userName = response.data.name;
+          router.push("/");
+        })
+        .catch((error) => {
+          context.state.registryModal.error = error.response.data.error;
+          context.state.registryModal.ref.show();
         });
     },
     getPriceWithFormat(context, payload) {
@@ -190,6 +205,7 @@ const store = new Vuex.Store({
     },
     async search(context, payload) {
       context.state.isCurrentlySearching = false;
+      context.state.isSearching = true;
       context.state.loadingResults = true;
       await axios
         .post("http://localhost:5555/search", {
@@ -236,6 +252,7 @@ const store = new Vuex.Store({
     },
     async searchPoll(context) {
       context.state.isCurrentlySearching = false;
+      context.state.isSearching = true;
       context.state.loadingResults = true;
       let finishCondition = false;
       while (!finishCondition) {
@@ -272,6 +289,7 @@ const store = new Vuex.Store({
           .catch((error) => {
             console.log(error);
           });
+          context.state.isSearching = false;
       }
     },
     autoSuggestPlace(context, payload) {

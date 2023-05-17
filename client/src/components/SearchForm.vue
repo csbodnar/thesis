@@ -1,7 +1,7 @@
 <template>
   <b-container class="bg-info rounded mt-3 col-lg-6 col-md-12" fluid="md">
     <b-form class="py-3" @submit.prevent="search">
-      <div>
+      <!-- <div>
         <b-form-group v-slot="{ ariaDescribedby }">
           <div class="mt-2 d-flex justify-content-start">
             <b-form-radio
@@ -23,7 +23,7 @@
             <label class="mx-1" for="return">{{ $t("return") }}</label>
           </div>
         </b-form-group>
-      </div>
+      </div> -->
       <div>
         <b-form-group
           id="from-input"
@@ -101,7 +101,7 @@
         ></b-form-datepicker>
       </b-form-group>
 
-      <b-form-group
+      <!-- <b-form-group
         v-if="this.isReturn"
         id="date-return-input"
         :label="$t('dateReturnLabel')"
@@ -116,7 +116,7 @@
           v-model="searchObject.dateReturn"
           class="mb-2 order-lg-1"
         ></b-form-datepicker>
-      </b-form-group>
+      </b-form-group> -->
 
       <div class="d-flex flex-wrap justify-content-center align-items-center">
         <div class="d-flex flex-wrap flex-row align-items-center">
@@ -146,7 +146,7 @@
           </div>
         </div>
         <div class="d-flex flex-wrap flex-row align-items-center">
-          <div v-if="isUsingSearhForm">
+          <div>
             <b-dropdown
               id="dropdown-buttons"
               v-model="sortingOption"
@@ -179,6 +179,7 @@
             class="m-1"
             type="submit"
             variant="light"
+            :disabled="isSearching"
             style="width: 8rem; height: 2.5rem"
             >{{ $t("search") }}</b-button
           >
@@ -241,12 +242,17 @@ export default {
       return store.getters.getPlaceSuggestions;
     },
     isUsingSearhForm() {
-      return store.state.isSearching;
+      return store.getters.is;
     },
     searchObject() {
       return store.getters.getSearchObject;
     },
-    ...mapState(["sortingOption", "directFlightSearch", "searchObject"]),
+    ...mapState([
+      "sortingOption",
+      "directFlightSearch",
+      "searchObject",
+      "isSearching",
+    ]),
   },
   methods: {
     ...mapMutations(["toggleDirectFlightSearch"]),
@@ -297,11 +303,6 @@ export default {
     },
 
     async search() {
-      let dateOfDepart = new Date(this.searchObject.dateDepart);
-      // let dateOfReturn = "";
-      // if (this.isReturn) {
-      //   //todo: do somethin
-      // }
       let originPlaceId = {};
       if (this.from.object.iataCode) {
         originPlaceId.iata = this.from.object.iataCode;
@@ -314,21 +315,35 @@ export default {
       } else {
         destinationPlaceId.entityId = this.to.object.entityId;
       }
+      let dateOfDepart = new Date(this.searchObject.dateDepart);
+      let queryLegs = [];
+      queryLegs.push({
+        originPlaceId,
+        destinationPlaceId,
+        date: {
+          year: dateOfDepart.getFullYear(),
+          month: dateOfDepart.getMonth() + 1,
+          day: dateOfDepart.getDate(),
+        },
+      });
+      // console.log(this.isReturn)
+      // if (this.isReturn) {
+      //   let dateOfReturn = new Date(this.searchObject.dateReturn);
+      //   queryLegs.push({
+      //     originPlaceId,
+      //     destinationPlaceId,
+      //     date: {
+      //       year: dateOfReturn.getFullYear(),
+      //       month: dateOfReturn.getMonth() + 1,
+      //       day: dateOfReturn.getDate(),
+      //     },
+      //   });
+      // }
       console.log(originPlaceId, destinationPlaceId);
       await store
         .dispatch("search", {
           query: {
-            queryLegs: [
-              {
-                originPlaceId,
-                destinationPlaceId,
-                date: {
-                  year: dateOfDepart.getFullYear(),
-                  month: dateOfDepart.getMonth() + 1,
-                  day: dateOfDepart.getDate(),
-                },
-              },
-            ],
+            queryLegs,
             cabinClass: this.searchObject.cabinClass,
           },
         })
