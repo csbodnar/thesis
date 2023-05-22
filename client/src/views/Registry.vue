@@ -80,7 +80,12 @@
         }}</b-button>
       </div>
     </b-form>
-    <b-modal ref="registryModal" header-bg-variant="danger" hide-footer>
+    <b-modal
+      ref="registryModal"
+      header-bg-variant="danger"
+      hide-footer
+      hide-header-close
+    >
       <template #modal-title> Error! </template>
       <div class="d-block text-center">
         <h5 v-if="errorCode !== null">{{ $t(`${errorCode}`) }}</h5>

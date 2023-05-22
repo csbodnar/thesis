@@ -289,7 +289,7 @@ const store = new Vuex.Store({
           .catch((error) => {
             console.log(error);
           });
-          context.state.isSearching = false;
+        context.state.isSearching = false;
       }
     },
     autoSuggestPlace(context, payload) {
@@ -316,29 +316,26 @@ const store = new Vuex.Store({
         .get("http://localhost:5555/fetchCulture")
         .then((response) => {
           console.log(response);
-          if (response.data.name === "Error") {
-            //deafault culture is english(uk)
-            context.state.market = "UK";
-            context.state.locale = "en-GB";
-            context.state.currency = {
-              code: "GBP",
-              symbol: "£",
-              thousandsSeparator: ",",
-              decimalSeparator: ".",
-              symbolOnLeft: false,
-              spaceBetweenAmountAndSymbol: false,
-              decimalDigits: 2,
-            };
-          } else {
-            context.state.market = response.data.market.code;
-            context.state.locale = response.data.locale.code;
-            context.state.language = response.data.locale.code;
-            context.state.currency = response.data.currency;
-          }
+          context.state.market = response.data.market.code;
+          context.state.locale = response.data.locale.code;
+          context.state.language = response.data.locale.code;
+          context.state.currency = response.data.currency;
           return response;
         })
         .catch((error) => {
           console.log(error);
+          //deafault culture is english(uk)
+          context.state.market = "UK";
+          context.state.locale = "en-GB";
+          context.state.currency = {
+            code: "GBP",
+            symbol: "£",
+            thousandsSeparator: ",",
+            decimalSeparator: ".",
+            symbolOnLeft: false,
+            spaceBetweenAmountAndSymbol: false,
+            decimalDigits: 2,
+          };
           return error.msg;
         });
     },

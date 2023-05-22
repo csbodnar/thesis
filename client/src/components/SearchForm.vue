@@ -47,7 +47,7 @@
           </b-form-input>
           <datalist id="from-list">
             <option
-              v-for="suggestion in this.placeSuggestions"
+              v-for="suggestion in placeSuggestions"
               :key="suggestion.entityId"
             >
               <span>{{ suggestionStringify(suggestion) }}</span>
@@ -77,7 +77,7 @@
         ></b-form-input>
         <datalist id="to-list">
           <option
-            v-for="suggestion in this.placeSuggestions"
+            v-for="suggestion in placeSuggestions"
             :key="suggestion.entityId"
           >
             <span>{{ suggestionStringify(suggestion) }}</span>
@@ -241,9 +241,6 @@ export default {
     placeSuggestions() {
       return store.getters.getPlaceSuggestions;
     },
-    isUsingSearhForm() {
-      return store.getters.is;
-    },
     searchObject() {
       return store.getters.getSearchObject;
     },
@@ -358,7 +355,6 @@ export default {
       const selectedSuggestion = this.placeSuggestions.find(
         (suggestion) => this.suggestionStringify(suggestion) === text
       );
-      console.log(selectedSuggestion);
       if (selectedSuggestion) {
         this.from.object = selectedSuggestion;
       }

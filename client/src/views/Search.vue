@@ -2,23 +2,23 @@
   <div class="d-flex flex-column">
     <search-form></search-form>
     <b-container class="container-fluid">
-      <flight-component
-        :key="element.itineraryId"
-        v-for="element in currentPageItems"
-        :itinerary="itineraries[element.itineraryId]"
-        :id="element.itineraryId"
-        :legs="legs"
-        :segments="segments"
-        :places="places"
-        :carriers="carriers"
-        :agents="agents"
-        :showMarkButton="isSignedIn"
-      ></flight-component>
-      <b-spinner
-        v-if="isSearching"
-        variant="primary"
-        class="d-flex align-self-center"
-      ></b-spinner>
+      <div v-if="isSearching" class="justify-content-center my-5">
+        <b-spinner variant="primary"></b-spinner>
+      </div>
+      <div v-else class="mt-3">
+        <flight-component
+          :key="element.itineraryId"
+          v-for="element in currentPageItems"
+          :itinerary="itineraries[element.itineraryId]"
+          :id="element.itineraryId"
+          :legs="legs"
+          :segments="segments"
+          :places="places"
+          :carriers="carriers"
+          :agents="agents"
+          :showMarkButton="isSignedIn"
+        ></flight-component>
+      </div>
       <b-pagination
         v-if="showPaging"
         align="center"

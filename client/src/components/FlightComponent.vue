@@ -1,5 +1,5 @@
 <template>
-  <b-card v-if="isCreatedFinished">
+  <b-card v-if="isCreatedFinished" class="mb-3">
     <div>
       <div class="row justify-content-center">
         <div class="col-sm-12 col-md-5 align-self-stretch">
@@ -92,7 +92,11 @@
     <!-- logged in-->
     <div v-if="showMarkButton">
       <b-button variant="warning" @click="markingValidation">Mark</b-button>
-      <b-modal :id="`mark-${this.id.replace(',', ':')}`" hide-footer>
+      <b-modal
+        :id="`mark-${this.id.replace(',', ':')}`"
+        hide-footer
+        hide-header-close
+      >
         <template #modal-title> Warning! </template>
         <div class="d-block text-center">
           <h5>
@@ -200,9 +204,7 @@ export default {
   },
   watch: {
     hasMoreOptions: async function (newVal, oldVal) {
-      console.log(oldVal + " to " + newVal);
       this.pricingOptions = this.getPricingOptions();
-      console.log(this.pricingOptions[0]);
     },
   },
   computed: {
