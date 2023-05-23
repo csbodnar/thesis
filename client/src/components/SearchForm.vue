@@ -190,12 +190,6 @@
 </template>
 <script>
 import store from "./../store";
-import {
-  mdiAirport,
-  mdiFlagVariant,
-  mdiCityVariant,
-  mdiAirplane,
-} from "@mdi/js";
 import { mapState, mapMutations } from "vuex";
 
 export default {
