@@ -1,5 +1,5 @@
 <template>
-  <b-card v-if="isCreatedFinished" class="mb-3">
+  <b-card class="mb-3">
     <div>
       <div class="row justify-content-center">
         <div class="col-sm-12 col-md-5 align-self-stretch">
@@ -149,7 +149,6 @@ export default {
   },
   data() {
     return {
-      isCreatedFinished: false,
       pricingOptions: [],
       fromObject: {},
       toObject: {},
@@ -199,8 +198,6 @@ export default {
     });
     let hours = Math.floor(sumMinutes / 60);
     this.travelTime = `${hours}h ${sumMinutes - hours * 60}m`;
-
-    this.isCreatedFinished = true;
   },
   watch: {
     hasMoreOptions: async function (newVal, oldVal) {

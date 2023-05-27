@@ -197,7 +197,7 @@ export default {
   data() {
     return {
       minDate: new Date(),
-      searchType: "oneway",
+      // searchType: "oneway",
       from: {
         search: "",
         object: {},
@@ -229,9 +229,9 @@ export default {
     this.to.object = store.state.searchObject.destinationPlaceObject;
   },
   computed: {
-    isReturn() {
-      return this.searchType === "return";
-    },
+    // isReturn() {
+    //   return this.searchType === "return";
+    // },
     placeSuggestions() {
       return store.getters.getPlaceSuggestions;
     },

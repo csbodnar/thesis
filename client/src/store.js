@@ -123,23 +123,6 @@ const store = new Vuex.Store({
     setCurrentlySearching(state, payload) {
       state.isSearching = payload.isSearching;
     },
-    itineraryRefresh(state, payload) {
-      console.log(payload);
-      axios
-        .post("http://localhost:5555/searchByItinerary", {
-          sessionToken: state.searchSessionToken,
-          itineraryId: payload.itineraryId,
-        })
-        .then((response) => {
-          state.authToken = response.data.token;
-          state.isSignedIn = true;
-          router.push("/");
-        })
-        .catch((error) => {
-          console.log(error);
-          return error.msg;
-        });
-    },
     setRegistryModal(state, payload) {
       state.registryModal.ref = payload.ref;
     },
@@ -359,60 +342,6 @@ const store = new Vuex.Store({
         .catch((error) => {
           console.log(error);
           return error.msg;
-        });
-    },
-    async fetchMarkedFlightData(context) {
-      await axios
-        .post("http://localhost:5555/search", {
-          query: {
-            market: context.state.markedFlightData.raw.market,
-            locale: context.state.markedFlightData.raw.locale,
-            currency: context.state.markedFlightData.raw.currency,
-            queryLegs: [
-              {
-                originPlaceId: {
-                  entityId: context.state.markedFlightData.raw.originEntityId,
-                },
-                destinationPlaceId: {
-                  entityId:
-                    context.state.markedFlightData.raw.destinationEntityId,
-                },
-                date: {
-                  year: context.state.markedFlightData.raw.year,
-                  month: context.state.markedFlightData.raw.month,
-                  day: context.state.markedFlightData.raw.day,
-                },
-              },
-            ],
-            cabinClass: context.state.markedFlightData.raw.cabinClass,
-            adults: context.state.markedFlightData.raw.adults,
-          },
-        })
-        .then(async (response) => {
-          console.log(response.data.status);
-
-          if (response.data.status == 400) {
-            console.log(response.data.message);
-          }
-          if (response.data.action !== "RESULT_ACTION_OMITTED") {
-            await axios
-              .post("http://localhost:5555/searchByItinerary", {
-                sessionToken: response.data.sessionToken,
-                itineraryId: context.state.markedFlightData.raw.itineraryId,
-              })
-              .then((resp) => {
-                context.state.markedFlightData.detailed =
-                  resp.data.content.results;
-              })
-              .catch((err) => {
-                console.log(err);
-              });
-          } else {
-            //todo: error date from past
-          }
-        })
-        .catch((error) => {
-          console.log(error);
         });
     },
     async setMarkedFlightData(context, payload) {

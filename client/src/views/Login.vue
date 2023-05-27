@@ -39,8 +39,8 @@
         ></b-form-input>
       </b-form-group>
       <div class="my-3">
-        <b-button class="mx-4" @click="goBack">{{ $t("back") }}</b-button>
-        <b-button class="mx-4" variant="outline-success" type="submit">{{
+        <b-button id="login-back-btn" class="mx-4" @click="goBack">{{ $t("back") }}</b-button>
+        <b-button id="login-btn" class="mx-4" variant="outline-success" type="submit">{{
           $t("loginVerb")
         }}</b-button>
       </div>

@@ -13,4 +13,4 @@ mail user if it is reasonable
 	validation
 	date at least today --done
 	late nigth today itineraries -> 
-	no need of pricingoption id to save in database, instead save current price object
+	no need of pricingoption id to save in database, instead save current price object --done

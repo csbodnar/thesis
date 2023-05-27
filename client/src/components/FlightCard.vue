@@ -1,15 +1,6 @@
 <template>
   <div class="flight-card">
-    <b-card-group deck v-if="isWideScreen">
-      <b-card :title="departureCity" class="flight-card__card">
-        <div class="flight-card__time">{{ departureTime }}</div>
-      </b-card>
-      <b-card :title="arrivalCity" class="flight-card__card">
-        <div class="flight-card__time">{{ arrivalTime }}</div>
-      </b-card>
-    </b-card-group>
-
-    <div v-else>
+    <div>
       <b-card :title="departureCity" class="flight-card__card">
         <div class="flight-card__time">{{ departureTime }}</div>
       </b-card>

@@ -1,13 +1,12 @@
 require("dotenv").config();
-const { Sequelize, DataTypes } = require("sequelize");
+const { Sequelize } = require("sequelize");
 const jwt = require("jsonwebtoken");
-const sqlite3 = require("sqlite3");
 const axios = require("axios");
+const nodemailer = require("nodemailer");
 const cors = require("cors");
 const requestIp = require("request-ip");
 const https = require("https");
 const express = require("express"),
-  path = require("path"),
   app = express(),
   bodyParser = require("body-parser"),
   port = process.env.PORT;
@@ -16,7 +15,6 @@ app.use(cors());
 app.use(requestIp.mw());
 
 const { User, Itinerary } = require("./models");
-const itinerary = require("./models/itinerary");
 
 const HEADERS = {
   "content-type": "application/json",
@@ -300,49 +298,6 @@ app.post("/suggestPlace", async function (req, res) {
     });
   res.send(resData);
 });
-
-app.post("/searchByItinerary", async function (req, res) {
-  console.log("sessionToken: ", req.body.sessionToken);
-  let resData;
-  await axios
-    .request({
-      method: "POST",
-      url: `https://partners.api.skyscanner.net/apiservices/v3/flights/live/itineraryrefresh/create/${req.body.sessionToken}`,
-      headers: HEADERS,
-      data: {
-        itineraryId: req.body.itineraryId,
-      },
-    })
-    .then(function (response) {
-      resData = response.data;
-      refreshToken = response.data.refreshSessionToken;
-    })
-    .catch(function (error) {
-      console.log(error.message);
-      resData = error;
-    });
-  res.send(resData);
-});
-
-app.post("/refreshByItinerary", async function (req, res) {
-  let resData;
-  console.log(req.body);
-  await axios
-    .request({
-      method: "GET",
-      url: `https://partners.api.skyscanner.net/apiservices/v3/flights/live/itineraryrefresh/poll/${req.body.refreshSessionToken}`,
-      headers: HEADERS,
-    })
-    .then(function (response) {
-      resData = response.data;
-    })
-    .catch(function (error) {
-      console.log(error.message);
-      resData = error;
-    });
-  res.send(resData);
-});
-
 async function checkEveryUsersWatched() {
   try {
     console.log("check");
