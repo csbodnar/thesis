@@ -1,8 +1,8 @@
 <template>
-  <div class="date-container">
-    <div class="date-month">{{ date }}</div>
-    <div class="date-year" v-if="year !== currentYear">{{ year }}</div>
-    <div class="date-time">{{ time }}</div>
+  <div>
+    <div>{{ date }}</div>
+    <div v-if="year !== currentYear">{{ year }}</div>
+    <div>{{ time }}</div>
   </div>
 </template>
 <script>
@@ -30,7 +30,7 @@ export default {
         "Nov",
         "Dec",
       ];
-      return `${months[this.dateObj.getMonth() - 1]} ${this.dateObj.getDate()}`;
+      return `${months[this.dateObj.getMonth()]} ${this.dateObj.getDate()}`;
     },
     year() {
       return this.dateObj.getFullYear();

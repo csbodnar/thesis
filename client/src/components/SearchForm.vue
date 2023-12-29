@@ -38,7 +38,7 @@
             list="from-list"
             v-model="from.search"
             @input="autoSuggestFromPlace"
-            @change="setOriginPlace"
+            @focusout="setOriginPlace"
             autocomplete="off"
             type="text"
             required
@@ -69,7 +69,7 @@
           list="to-list"
           v-model="to.search"
           @input="autoSuggestToPlace"
-          @change="setDestinationPlace"
+          @focusout="setDestinationPlace"
           autocomplete="off"
           type="text"
           required
@@ -150,7 +150,7 @@
             <b-dropdown
               id="dropdown-buttons"
               v-model="sortingOption"
-              text="Sorting By"
+              :text="$t('sortingBy')"
               class="m-1"
               variant="light"
               style="width: 8rem"
@@ -253,17 +253,19 @@ export default {
     toggleSearching() {
       store.state.isSearching = !store.state.isSearching;
     },
-    setOriginPlace(value) {
-      let originPlace = this.placeSuggestions.find(
-        (suggestion) => this.suggestionStringify(suggestion) === value
-      );
-      store.commit("setOriginPlaceObject", { place: originPlace });
+    setOriginPlace() {
+      if (this.placeSuggestions.length > 0) {
+        this.from.object = this.placeSuggestions[0];
+        this.from.search = this.suggestionStringify(this.from.object);
+      }
+      store.commit("setOriginPlaceObject", { place: this.from.object });
     },
-    setDestinationPlace(value) {
-      let destinationPlace = this.placeSuggestions.find(
-        (suggestion) => this.suggestionStringify(suggestion) === value
-      );
-      store.commit("setDestinationPlaceObject", { place: destinationPlace });
+    setDestinationPlace() {
+      if (this.placeSuggestions.length > 0) {
+        this.to.object = this.placeSuggestions[0];
+        this.to.search = this.suggestionStringify(this.to.object);
+      }
+      store.commit("setDestinationPlaceObject", { place: this.to.object });
     },
     setSortingOption(event) {
       store.state.sortingOption = event.target.value;
@@ -278,18 +280,6 @@ export default {
           return suggestion.name;
         default:
           return suggestion.name;
-      }
-    },
-    suggestionIcon(suggestion) {
-      switch (suggestion.type) {
-        case "PLACE_TYPE_AIRPORT":
-          return mdiAirport;
-        case "PLACE_TYPE_CITY":
-          return mdiCityVariant;
-        case "PLACE_TYPE_COUNTRY":
-          return mdiFlagVariant;
-        default:
-          return mdiAirplane;
       }
     },
 
@@ -317,7 +307,6 @@ export default {
           day: dateOfDepart.getDate(),
         },
       });
-      // console.log(this.isReturn)
       // if (this.isReturn) {
       //   let dateOfReturn = new Date(this.searchObject.dateReturn);
       //   queryLegs.push({
@@ -330,7 +319,6 @@ export default {
       //     },
       //   });
       // }
-      console.log(originPlaceId, destinationPlaceId);
       await store
         .dispatch("search", {
           query: {

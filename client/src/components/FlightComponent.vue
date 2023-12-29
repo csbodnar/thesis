@@ -158,7 +158,6 @@ export default {
     };
   },
   async created() {
-    // console.log(this.pricingOptions, this.hasMoreOptions);
     this.pricingOptions = this.getPricingOptions();
 
     const firstLeg = this.legs[this.itinerary.legIds[0]];
@@ -168,7 +167,7 @@ export default {
       fromPlace: this.places[firstSegment.originPlaceId],
       departureDateTime: new Date(
         firstSegment.departureDateTime.year,
-        firstSegment.departureDateTime.month,
+        firstSegment.departureDateTime.month - 1,
         firstSegment.departureDateTime.day,
         firstSegment.departureDateTime.hour,
         firstSegment.departureDateTime.minute
@@ -184,7 +183,7 @@ export default {
       toPlace: this.places[lastSegment.destinationPlaceId],
       arrivalDateTime: new Date(
         lastSegment.arrivalDateTime.year,
-        lastSegment.arrivalDateTime.month,
+        lastSegment.arrivalDateTime.month - 1,
         lastSegment.arrivalDateTime.day,
         lastSegment.arrivalDateTime.hour,
         lastSegment.arrivalDateTime.minute
@@ -200,7 +199,7 @@ export default {
     this.travelTime = `${hours}h ${sumMinutes - hours * 60}m`;
   },
   watch: {
-    hasMoreOptions: async function (newVal, oldVal) {
+    hasMoreOptions: async function () {
       this.pricingOptions = this.getPricingOptions();
     },
   },
@@ -208,12 +207,8 @@ export default {
     htmlId() {
       return this.id.replace(",", ":");
     },
-
     currency() {
       return store.state.currency;
-    },
-    isWideScreen() {
-      return window.innerWidth >= 800;
     },
     ownSegments() {
       let segments = [];
@@ -236,7 +231,7 @@ export default {
       ) {
         this.setMarkedForUser();
       } else {
-        this.$bvModal.show(`mark-${this.id.replace(",", ":")}`);
+        this.$bvModal.show(`mark-${this.htmlId}`);
       }
     },
     setMarkedForUser() {
@@ -249,15 +244,14 @@ export default {
           destinationEntityId: this.toObject.toPlace.entityId,
         })
         .then((response) => {
-          console.log(response);
           store.dispatch("getMarkedFlightData");
         });
     },
     onHide() {
-      this.$bvModal.hide(`mark-${this.id.replace(",", ":")}`);
+      this.$bvModal.hide(`mark-${this.htmlId}`);
     },
     onOk() {
-      this.$bvModal.hide(`mark-${this.id.replace(",", ":")}`);
+      this.$bvModal.hide(`mark-${this.htmlId}`);
       this.setMarkedForUser();
     },
     getPricingOptions() {

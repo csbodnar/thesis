@@ -38,6 +38,9 @@ const messages = {
     UNMATCHABLE_PASSWORDS_ERROR: "The two given passwords don't match.",
     USER_NOT_EXISTS_ERROR: "User does not exist.",
     INCORRECT_PASSWORD_ERROR: "Incorrect password.",
+    missing_itinerary:
+      "You have not marked a flight yet, or your marked itinerary is from the past.",
+    sortingBy: "Sorting by",
   },
   "en-GB": {
     loginTab: "Log in",
@@ -73,6 +76,9 @@ const messages = {
     UNMATCHABLE_PASSWORDS_ERROR: "The two given passwords don't match.",
     USER_NOT_EXISTS_ERROR: "User does not exist.",
     INCORRECT_PASSWORD_ERROR: "Incorrect password.",
+    missing_itinerary:
+      "You have not marked a flight yet, or your marked itinerary is from the past.",
+    sortingBy: "Sorting by",
   },
   "fr-FR": {
     loginTab: "Se connecter",
@@ -104,10 +110,14 @@ const messages = {
     buisnessClass: "Affaires",
     firstClass: "Première classe",
     back: "Retour",
-    EMAIL_ALREADY_IN_USE_ERROR: "This e-mail is already in use.",
-    UNMATCHABLE_PASSWORDS_ERROR: "The two given passwords don't match.",
-    USER_NOT_EXISTS_ERROR: "User does not exist.",
-    INCORRECT_PASSWORD_ERROR: "Incorrect password.",
+    EMAIL_ALREADY_IN_USE_ERROR: "Cet e-mail est déjà utilisé.",
+    UNMATCHABLE_PASSWORDS_ERROR:
+      "Les deux mots de passe saisis ne correspondent pas.",
+    USER_NOT_EXISTS_ERROR: "L'utilisateur n'existe pas.",
+    INCORRECT_PASSWORD_ERROR: "Mot de passe incorrect.",
+    missing_itinerary:
+      "Vous n'avez pas encore marqué de vol, ou votre itinéraire marqué est dans le passé.",
+    sortingBy: "Trié par",
   },
   "hu-HU": {
     loginTab: "Bejelentkezés",
@@ -139,10 +149,13 @@ const messages = {
     buisnessClass: "Buisness",
     firstClass: "Első Osztály",
     back: "Vissza",
-    EMAIL_ALREADY_IN_USE_ERROR: "This e-mail is already in use.",
-    UNMATCHABLE_PASSWORDS_ERROR: "The two given passwords don't match.",
-    USER_NOT_EXISTS_ERROR: "User does not exist.",
-    INCORRECT_PASSWORD_ERROR: "Incorrect password.",
+    EMAIL_ALREADY_IN_USE_ERROR: "Ez az e-mail cím már használatban van.",
+    UNMATCHABLE_PASSWORDS_ERROR: "A két jelszó nem egyezik.",
+    USER_NOT_EXISTS_ERROR: "A felhasználó nem létezik.",
+    INCORRECT_PASSWORD_ERROR: "Helytelen jelszó.",
+    missing_itinerary:
+      "Még nem jelölt meg járatot, vagy az a múltból származik.",
+    sortingBy: "Rendezés",
   },
   "de-DE": {
     loginTab: "Anmelden",
@@ -174,10 +187,14 @@ const messages = {
     buisnessClass: "Business",
     firstClass: "First Class",
     back: "Zurück",
-    EMAIL_ALREADY_IN_USE_ERROR: "This e-mail is already in use.",
-    UNMATCHABLE_PASSWORDS_ERROR: "The two given passwords don't match.",
-    USER_NOT_EXISTS_ERROR: "User does not exist.",
-    INCORRECT_PASSWORD_ERROR: "Incorrect password.",
+    EMAIL_ALREADY_IN_USE_ERROR: "Diese E-Mail wird bereits verwendet.",
+    UNMATCHABLE_PASSWORDS_ERROR:
+      "Die beiden eingegebenen Passwörter stimmen nicht überein.",
+    USER_NOT_EXISTS_ERROR: "Benutzer existiert nicht.",
+    INCORRECT_PASSWORD_ERROR: "Falsches Passwort.",
+    missing_itinerary:
+      "Sie haben noch keinen Flug markiert oder Ihr markiertes Reiseziel liegt in der Vergangenheit.",
+    sortingBy: "Sortiert nach",
   },
   // add more languages as needed
 };

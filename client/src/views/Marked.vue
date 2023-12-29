@@ -9,7 +9,7 @@
       class="d-flex align-self-center"
     ></b-spinner>
 
-    <div v-else class="w-100">
+    <div v-else-if="hasMarked" class="w-100">
       <b-card class="mb-2">
         <div class="row justify-content-around">
           <div class="col-12 col-sm-4 fw-bold align-self-center">
@@ -37,6 +37,11 @@
         :showMarkButton="false"
       ></flight-component>
     </div>
+    <div class="d-flex align-self-center" v-else>
+      <h1 class="text-center">
+        {{ $t("missing_itinerary") }}
+      </h1>
+    </div>
   </b-container>
 </template>
 <script>
@@ -51,23 +56,31 @@ export default {
     return {
       loading: true,
       priceWhenMarked: "",
+      hasMarked: false,
     };
   },
   async created() {
-    await store.dispatch("getMarkedFlightData").then(() => {
-      this.loading = false;
-    });
-    console.log(this.markedDetailed);
-    store
-      .dispatch("getPriceWithFormat", {
-        price: {
-          unit: this.markedRaw.priceUnit,
-          amount: this.markedRaw.priceAmount,
-        },
-      })
-      .then((response) => {
-        this.priceWhenMarked = response;
+    try {
+      await store.dispatch("getMarkedFlightData").then(() => {
+        this.loading = false;
       });
+      if (this.markedRaw && this.markedDetailed) {
+        store
+          .dispatch("getPriceWithFormat", {
+            price: {
+              unit: this.markedRaw.priceUnit,
+              amount: this.markedRaw.priceAmount,
+            },
+          })
+          .then((response) => {
+            this.priceWhenMarked = response;
+          });
+        this.hasMarked = true;
+      }
+    } catch (error) {
+      console.log(error);
+      this.loading = false;
+    }
   },
   computed: {
     markedDetailed() {

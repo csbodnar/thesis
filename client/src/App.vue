@@ -76,7 +76,7 @@
             </router-link>
           </div>
           <div class="d-flex flex-row align-self-center mx-5">
-            <div class="h3 mb-0 align-self-center">
+            <div class="h3 mb-0 pt-1">
               <b-icon-globe2></b-icon-globe2>
             </div>
             <b-nav-item-dropdown class="fw-bold" :text="language.display" left>

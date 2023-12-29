@@ -224,6 +224,7 @@ const store = new Vuex.Store({
             context.state.searchResultAlliances =
               response.data.content.results.alliances;
             context.state.showingResults = true;
+            context.state.isSearching = false;
             context.state.loadingResults = false;
           } else {
             //todo: error date from past
@@ -235,7 +236,6 @@ const store = new Vuex.Store({
     },
     async searchPoll(context) {
       context.state.isCurrentlySearching = false;
-      context.state.isSearching = true;
       context.state.loadingResults = true;
       let finishCondition = false;
       while (!finishCondition) {
@@ -247,12 +247,7 @@ const store = new Vuex.Store({
             if (response.data.status == 400) {
               finishCondition = true;
               return Promise.reject(new Error(response.data.message));
-            }
-            if (response.data.status != 429)
-              console.log(response.data.status, response.data.action);
-            if (response.data.status === "RESULT_STATUS_COMPLETE") {
-              finishCondition = true;
-              console.log(response.data);
+            } else {
               context.state.sortingOptions =
                 response.data.content.sortingOptions;
               context.state.searchResultItineraries =
@@ -268,12 +263,15 @@ const store = new Vuex.Store({
               context.state.searchResultAgents =
                 response.data.content.results.agents;
             }
+            if (response.data.status === "RESULT_STATUS_COMPLETE") {
+              finishCondition = true;
+            }
           })
           .catch((error) => {
             console.log(error);
           });
-        context.state.isSearching = false;
       }
+      context.state.isSearching = false;
     },
     autoSuggestPlace(context, payload) {
       axios
@@ -298,7 +296,6 @@ const store = new Vuex.Store({
       await axios
         .get("http://localhost:5555/fetchCulture")
         .then((response) => {
-          console.log(response);
           context.state.market = response.data.market.code;
           context.state.locale = response.data.locale.code;
           context.state.language = response.data.locale.code;
@@ -329,7 +326,6 @@ const store = new Vuex.Store({
           headers: { Authorization: `Bearer ${context.state.authToken}` },
         })
         .then((response) => {
-          console.log(response.data);
           if (response.data.msg == "no watched") {
             context.state.markedFlightData.raw = undefined;
           } else {
@@ -340,6 +336,7 @@ const store = new Vuex.Store({
           return response.data;
         })
         .catch((error) => {
+          context.state.markedFlightData.raw = undefined;
           console.log(error);
           return error.msg;
         });
@@ -364,7 +361,6 @@ const store = new Vuex.Store({
         cabinClass: context.state.searchObject.cabinClass,
         // childrenAges: req.body.childrenAges,
       };
-      // console.log(data);
       await axios
         .request({
           method: "POST",
@@ -373,7 +369,6 @@ const store = new Vuex.Store({
           data,
         })
         .then((response) => {
-          console.log(response);
           return response;
         })
         .catch((error) => {

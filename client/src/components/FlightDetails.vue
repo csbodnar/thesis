@@ -29,7 +29,6 @@ export default {
   name: "FlightDetails",
   props: {
     segment: Object,
-    id: String,
     places: Object,
     carriers: Object,
   },
@@ -52,14 +51,14 @@ export default {
   created() {
     this.departureDate = new Date(
       this.segment.departureDateTime.year,
-      this.segment.departureDateTime.month,
+      this.segment.departureDateTime.month - 1,
       this.segment.departureDateTime.day,
       this.segment.departureDateTime.hour,
       this.segment.departureDateTime.minute
     );
     this.arrivalDate = new Date(
       this.segment.arrivalDateTime.year,
-      this.segment.arrivalDateTime.month,
+      this.segment.arrivalDateTime.month - 1,
       this.segment.arrivalDateTime.day,
       this.segment.arrivalDateTime.hour,
       this.segment.arrivalDateTime.minute

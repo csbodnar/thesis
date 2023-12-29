@@ -48,7 +48,6 @@ export default {
       perPage: 6,
     };
   },
-  created() {},
   computed: {
     isSearching() {
       return store.state.isSearching;
@@ -95,9 +94,6 @@ export default {
     },
     totalItems() {
       return Object.keys(this.filtered).length;
-    },
-    totalPages() {
-      return Math.ceil(this.totalItems / this.perPage);
     },
     currentPageItems() {
       const startIndex = (this.currentPage - 1) * this.perPage;
